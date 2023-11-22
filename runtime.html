@@ -158,8 +158,8 @@
 <ul>
 <li>The WebAssembly binary must not use any of the WebAssembly extensions that was used after the launch of WebAssembly 1.0.</li>
 <li>It must not have any <a href="https://webassembly.github.io/spec/core/bikeshed/#start-function%E2%91%A0"><em>start function</em>, as defined by the WebAssembly specification</a>.</li>
-<li>It must either export exactly one memory named <code>memory</code> (with module name <code>env</code>), or import exactly one memory.</li>
-<li>It must export a global named <code>__heap_base</code> (with module name <code>env</code>) of type <code>i32</code>.</li>
+<li>It must either export exactly one memory named <code>memory</code>, or import exactly one memory named <code>memory</code> in module name <code>env</code>.</li>
+<li>It must export a global named <code>__heap_base</code> of type <code>i32</code>.</li>
 <li>TODO: runtime spec</li>
 </ul>
 <p>The <strong>runtime WebAssembly</strong> is allowed to import any function, whatever their signature. A host implementation must not consider a <strong>runtime WebAssembly</strong> as invalid only because it imports an unknown function or a known function with a signature that doesn't match the expected one. A host implementation must raise an error only if such a function is called during the execution of the WebAssembly.</p>
