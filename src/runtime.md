@@ -23,21 +23,21 @@ The **runtime WebAssembly** is defined as a [WebAssembly](https://webassembly.gi
 
 The **runtime WebAssembly** is allowed to import any function, whatever their signature. A host implementation must not consider a **runtime WebAssembly** as invalid only because it imports an unknown function or a known function with a signature that doesn't match the expected one. A host implementation must raise an error only if such a function is called during the execution of the WebAssembly.
 
-## Entry point
+## Runtime call
 
-A **runtime entry point** is a function exported by the **runtime WebAssembly**, as defined [in the WebAssembly specification](https://webassembly.github.io/spec/core/bikeshed/#exports%E2%91%A0), that has the following signature:
+Given a *runtime WebAssembly*, a *number of heap pages*, a [*state*](state.md), a *runtime entry point*, an *offchain functions enabled* boolean, and some input data, the host can **do a runtime call**.
 
-> (func $runtime_entry_point (param $data i32) (param $len i32) (result i64))
+Doing a runtime call consists in the following step:
 
-> **Note**: A **runtime WebAssembly** is allowed to export items that do not match the conditions here, as long as it doesn't conflict with some of the other requirements found in this specification.
+- Verify that the *runtime entry point* is a function exported by the *runtime WebAssembly*, and whose signature is `(func $runtime_entry_point (param $data i32) (param $len i32) (result i64))`.
+- Instantiate the *runtime WebAssembly*, as defined [here](https://webassembly.github.io/spec/core/bikeshed/#instantiation%E2%91%A1). The list of imports is described below.
+- Initialize the *overlay*, defined as the list of modifications performed to the state since the beginning of the execution.
+- Read the value of the `__heap_base` global exported by the *runtime WebAssembly*, and initialize a new *allocator*.
+- Use the allocator in order to allocate a buffer of size equal to the input data. Copy the input data to this buffer.
+- Invoke the *runtime entry point*, as defined [here](https://webassembly.github.io/spec/core/bikeshed/#invocation%E2%91%A1), passing as argument a pointer to the buffer containing the input data and the length of the input data.
+- Once the invocation is finished, TODO describe how to get output.
 
-TODO: do we really need to define entry point
-
-## WebAssembly execution
-
-Given a *runtime WebAssembly*, a *state*, a *runtime entry point*, and some input data, the host can **execute** the WebAssembly.
-
-While execution is in progress, an implementation must maintain an *overlay*, defined as the list of modifications performed to the state since the beginning of the execution.
+TODO: talk about memory consumption and halting problem stuff
 
 The following functions can be imported by the **runtime WebAssembly**:
 
