@@ -336,16 +336,41 @@ TODO libp2p handshake</p>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="networking-protocols"><a class="header" href="#networking-protocols">Networking protocols</a></h1>
 <h2 id="request-response-protocols"><a class="header" href="#request-response-protocols">Request-response protocols</a></h2>
+<h3 id="sync"><a class="header" href="#sync">Sync</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/sync/sync/2</code></p>
 <h3 id="warp-sync"><a class="header" href="#warp-sync">Warp sync</a></h3>
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/sync/warp</code></p>
-<p>TODO: see https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/node/network/protocol/src
-https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/peer_set.rs#L283</p>
+<h3 id="state-1"><a class="header" href="#state-1">State</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/state/2</code></p>
+<h3 id="light"><a class="header" href="#light">Light</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/light/2</code></p>
 <h3 id="kademlia"><a class="header" href="#kademlia">Kademlia</a></h3>
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/kad</code></p>
 <p>Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.</p>
 <p>An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.</p>
 <p>Implementers should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
+<blockquote>
+<p><strong>Note</strong>: This protocol is identical to the Kademlia protocol of the libp2p library.</p>
+</blockquote>
+<p>TODO: for protocols below, see config at https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/request_response/mod.rs#L192</p>
+<h3 id="chunk-fetching"><a class="header" href="#chunk-fetching">Chunk fetching</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_chunk/1</code></p>
+<h3 id="collation-fetching-v1"><a class="header" href="#collation-fetching-v1">Collation fetching v1</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_collation/1</code></p>
+<h3 id="collation-fetching-v2"><a class="header" href="#collation-fetching-v2">Collation fetching v2</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_collation/2</code></p>
+<h3 id="pov-fetching"><a class="header" href="#pov-fetching">PoV fetching</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_pov/1</code></p>
+<h3 id="available-data-fetching"><a class="header" href="#available-data-fetching">Available data fetching</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_available_data/1</code></p>
+<h3 id="statement-fetching"><a class="header" href="#statement-fetching">Statement fetching</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_statement/1</code></p>
+<h3 id="dispute-sending"><a class="header" href="#dispute-sending">Dispute sending</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/send_dispute/1</code></p>
+<h3 id="attested-candidate-request"><a class="header" href="#attested-candidate-request">Attested candidate request</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_attested_candidate/2</code></p>
 <h2 id="notification-protocols"><a class="header" href="#notification-protocols">Notification protocols</a></h2>
+<h3 id="block-announces"><a class="header" href="#block-announces">Block announces</a></h3>
 <h3 id="transactions"><a class="header" href="#transactions">Transactions</a></h3>
 <p>The <em>transactions</em> notifications substream should be opened only after a <em>block announces</em> notifications substream has been opened.</p>
 <p>The <em>handshake</em> of this substream is an empty set of bytes.</p>
@@ -359,9 +384,41 @@ https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/pro
 </ul>
 <p>Implementers are encouraged to send only one transaction per notification.</p>
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
+<h3 id="validation-v1"><a class="header" href="#validation-v1">Validation v1</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/validation/1</code></p>
+<h3 id="validation-v2"><a class="header" href="#validation-v2">Validation v2</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/validation/2</code></p>
+<h3 id="collation-v1"><a class="header" href="#collation-v1">Collation v1</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/collation/1</code></p>
+<h3 id="collation-v2"><a class="header" href="#collation-v2">Collation v2</a></h3>
+<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/collation/2</code></p>
+<p>TODO: see https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/node/network/protocol/src
+https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/peer_set.rs#L283</p>
 <h2 id="other"><a class="header" href="#other">Other</a></h2>
 <h3 id="ping"><a class="header" href="#ping">Ping</a></h3>
+<p><strong>Protocol name</strong>: <code>/ipfs/ping/1.0.0</code></p>
+<blockquote>
+<p><strong>Note</strong>: This protocol is identical to the ping protocol of the libp2p library.</p>
+</blockquote>
 <h3 id="identify"><a class="header" href="#identify">Identify</a></h3>
+<p><strong>Protocol name</strong>: <code>/ipfs/id/1.0.0</code></p>
+<blockquote>
+<p><strong>Note</strong>: This protocol is identical to the identify protocol of the libp2p library.</p>
+</blockquote>
+<p>After the protocol has been negotiated on a substream, the receiving side of the substream sends back its identification information.</p>
+<p>The identification information is the encoding of the following protobuf definition:</p>
+<pre><code class="language-protobuf">syntax = &quot;proto2&quot;;
+message Identify {
+  optional string protocolVersion = 5;
+  optional string agentVersion = 6;
+  optional bytes publicKey = 1;
+  repeated bytes listenAddrs = 2;
+  optional bytes observedAddr = 4;
+  repeated string protocols = 3;
+}
+</code></pre>
+<p>The side that opened the substream can close its writing side either before or after receiving the response, at its discretion.</p>
+<p>TODO finish</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="liveness-requirements"><a class="header" href="#liveness-requirements">Liveness requirements</a></h1>
 <p>In order to conform to this specification, a <strong>relay chain validator</strong> must:</p>
 <ul>
