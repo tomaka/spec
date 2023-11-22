@@ -17,8 +17,8 @@ The **runtime WebAssembly** is defined as a [WebAssembly](https://webassembly.gi
 
 - The WebAssembly binary must not use any of the WebAssembly extensions that was used after the launch of WebAssembly 1.0.
 - It must not have any [*start function*, as defined by the WebAssembly specification](https://webassembly.github.io/spec/core/bikeshed/#start-function%E2%91%A0).
-- It must either export exactly one memory named `memory` (with module name `env`), or import exactly one memory.
-- It must export a global named `__heap_base` (with module name `env`) of type `i32`.
+- It must either export exactly one memory named `memory`, or import exactly one memory named `memory` in module name `env`.
+- It must export a global named `__heap_base` of type `i32`.
 - TODO: runtime spec
 
 The **runtime WebAssembly** is allowed to import any function, whatever their signature. A host implementation must not consider a **runtime WebAssembly** as invalid only because it imports an unknown function or a known function with a signature that doesn't match the expected one. A host implementation must raise an error only if such a function is called during the execution of the WebAssembly.
