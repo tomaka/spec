@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">3.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">3.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">3.2.</strong> Protocols</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html" class="active"><strong aria-hidden="true">4.</strong> Liveness requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html" class="active"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -143,16 +143,25 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="liveness-requirements"><a class="header" href="#liveness-requirements">Liveness requirements</a></h1>
-<p>In order to conform to this specification, a <strong>relay chain validator</strong> must:</p>
+<p>In order to conform to this specification, a <strong>validator</strong> must:</p>
 <ul>
 <li>Listen for incoming connections on a port .</li>
 <li>Attempt to connect to the other nodes.</li>
 <li>Publish its address using authority-discovery.</li>
 <li>Author blocks.</li>
 <li>Have a transactions pool.</li>
+<li>Run offchain workers</li>
 <li></li>
 </ul>
-<p>In order to conform to this specification, a <strong>parachain collator</strong> must:</p>
+<p>## Transactions pool</p>
+<p>A <strong>validator</strong> must .</p>
+<h2 id="inherents"><a class="header" href="#inherents">Inherents</a></h2>
+<ul>
+<li>para  https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429</li>
+<li>timestamp</li>
+</ul>
+<h2 id="authorship"><a class="header" href="#authorship">Authorship</a></h2>
+<p>Authoring a block consists in:</p>
 <ul>
 <li></li>
 </ul>
@@ -161,7 +170,7 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="network-protocol.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="network-kad.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -172,7 +181,7 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="network-protocol.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="network-kad.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

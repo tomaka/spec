@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">3.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">3.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">3.2.</strong> Protocols</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">4.</strong> Liveness requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -316,6 +316,16 @@ TODO</li>
 <blockquote>
 <p><strong>Note</strong>: The block execution will fail if the body that was provided doesn't correspond to the <em>extrinsics root</em> field of the header. If the block was downloaded from an untrusted source, implementers should be aware that the body might have been modified by this untrusted source. For this reason, in that situation implementers are encouraged to check whether the body matches the <em>extrinsics root</em> prior to starting the execution.</p>
 </blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="parachains"><a class="header" href="#parachains">Parachains</a></h1>
+<h2 id="collation"><a class="header" href="#collation">Collation</a></h2>
+<p>A <strong>collation</strong> is a collection of bytes defined as the concatenation of:</p>
+<ul>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="networking"><a class="header" href="#networking">Networking</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transport-protocol"><a class="header" href="#transport-protocol">Transport protocol</a></h1>
 <p>A host SHOULD listen for incoming TCP connections on one or more TCP ports reachable from the Internet.</p>
@@ -335,6 +345,18 @@ TODO libp2p handshake</p>
 <li>TCP/IP</li>
 <li>TCP/IP and WebSocket (secure or not)</li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="validators-matrix"><a class="header" href="#validators-matrix">Validators matrix</a></h1>
+<h2 id="topology"><a class="header" href="#topology">Topology</a></h2>
+<p>Given a <em>block</em>, the <strong>validators topology</strong> can be calculated by:</p>
+<ul>
+<li>Perform a runtime call to <code>Babe_currentEpoch</code>. TODO more precise</li>
+<li>Calculate the <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a> hash of the concatenation of the ASCII string <code>gossipsu</code> with the Babe randomness.</li>
+<li>Get the list of authorities. (how?)</li>
+<li>Do this lol https://docs.rs/rand/latest/src/rand/seq/mod.rs.html#244-245</li>
+<li>Calculate the square root (rounded down) of the number of authorities.</li>
+<li>TODO https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/grid_topology.rs#L122</li>
+</ul>
+<p>TODO: https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/gossip-support/src/lib.rs#L579</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="networking-protocols"><a class="header" href="#networking-protocols">Networking protocols</a></h1>
 <h2 id="request-response-protocols"><a class="header" href="#request-response-protocols">Request-response protocols</a></h2>
 <h3 id="sync"><a class="header" href="#sync">Sync</a></h3>
@@ -420,17 +442,28 @@ message Identify {
 </code></pre>
 <p>The side that opened the substream can close its writing side either before or after receiving the response, at its discretion.</p>
 <p>TODO finish</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="kademlia-1"><a class="header" href="#kademlia-1">Kademlia</a></h1>
+<h2 id="authority-discovery"><a class="header" href="#authority-discovery">Authority discovery</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="liveness-requirements"><a class="header" href="#liveness-requirements">Liveness requirements</a></h1>
-<p>In order to conform to this specification, a <strong>relay chain validator</strong> must:</p>
+<p>In order to conform to this specification, a <strong>validator</strong> must:</p>
 <ul>
 <li>Listen for incoming connections on a port .</li>
 <li>Attempt to connect to the other nodes.</li>
 <li>Publish its address using authority-discovery.</li>
 <li>Author blocks.</li>
 <li>Have a transactions pool.</li>
+<li>Run offchain workers</li>
 <li></li>
 </ul>
-<p>In order to conform to this specification, a <strong>parachain collator</strong> must:</p>
+<p>## Transactions pool</p>
+<p>A <strong>validator</strong> must .</p>
+<h2 id="inherents"><a class="header" href="#inherents">Inherents</a></h2>
+<ul>
+<li>para  https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429</li>
+<li>timestamp</li>
+</ul>
+<h2 id="authorship"><a class="header" href="#authorship">Authorship</a></h2>
+<p>Authoring a block consists in:</p>
 <ul>
 <li></li>
 </ul>
