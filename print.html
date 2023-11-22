@@ -198,7 +198,63 @@ Each key has a (potentially empty) value associated to it.</p>
 </blockquote>
 <p>TODO: do we really need to define entry point</p>
 <h2 id="webassembly-execution"><a class="header" href="#webassembly-execution">WebAssembly execution</a></h2>
-<p>Given a <em>runtime WebAssembly</em>, a <em>runtime entry point</em>, and some input data, the host can <strong>execute</strong> the WebAssembly.</p>
+<p>Given a <em>runtime WebAssembly</em>, a <em>state</em>, a <em>runtime entry point</em>, and some input data, the host can <strong>execute</strong> the WebAssembly.</p>
+<p>While execution is in progress, an implementation must maintain an <em>overlay</em>, defined as the list of modifications performed to the state since the beginning of the execution.</p>
+<p>The following functions can be imported by the <strong>runtime WebAssembly</strong>:</p>
+<h3 id="ext_allocator_malloc_version_1"><a class="header" href="#ext_allocator_malloc_version_1">ext_allocator_malloc_version_1</a></h3>
+<pre><code>(func $ext_allocator_malloc_version_1
+    (param $size i32) (result i32))
+</code></pre>
+<h3 id="ext_allocator_free_version_1"><a class="header" href="#ext_allocator_free_version_1">ext_allocator_free_version_1</a></h3>
+<pre><code>(func $ext_allocator_free_version_1 (param $ptr i32))
+</code></pre>
+<h3 id="ext_storage_set_version_1"><a class="header" href="#ext_storage_set_version_1">ext_storage_set_version_1</a></h3>
+<pre><code>(func $ext_storage_set_version_1
+    (param $key i64) (param $value i64))
+</code></pre>
+<p>With:</p>
+<ul>
+<li><code>key</code>: A pointer-size to the memory location containing the key.</li>
+<li><code>value</code>: A pointer-size to the memory location containing the value.</li>
+</ul>
+<p>The implementation must set the given <em>key</em> to the given <em>value</em> in the <em>overlay</em>.</p>
+<h3 id="ext_storage_get_version_1"><a class="header" href="#ext_storage_get_version_1">ext_storage_get_version_1</a></h3>
+<pre><code>(func $ext_storage_get_version_1
+    (param $key i64) (result i64))
+</code></pre>
+<p>With:</p>
+<ul>
+<li><code>key</code>: A pointer-size to the memory location containing the key.</li>
+<li>The result: a pointer-size.</li>
+</ul>
+<p>If the given <em>key</em> is present in the overlay, TODO</p>
+<h3 id="ext_storage_clear_version_1"><a class="header" href="#ext_storage_clear_version_1">ext_storage_clear_version_1</a></h3>
+<pre><code>(func $ext_storage_clear_version_1
+    (param $key i64))
+</code></pre>
+<p>With:</p>
+<ul>
+<li><code>key</code>: A pointer-size to the memory location containing the key.</li>
+</ul>
+<p>The implementation must set the given <em>key</em> in the <em>overlay</em> to being non-existent.</p>
+<h3 id="ext_storage_root_version_1"><a class="header" href="#ext_storage_root_version_1">ext_storage_root_version_1</a></h3>
+<pre><code>(func $ext_storage_root_version_1
+    (return i64))
+</code></pre>
+<p>With:</p>
+<ul>
+<li>The result: a pointer-size.</li>
+</ul>
+<p>The implementation must build a temporary <em>state</em> by applying the <em>overlay</em> to the state provided as input, then calculate the <em>Merkle value</em> of this temporary state.
+The implementation then allocates a 32 bytes buffer using the same mechanism as <code>ext_allocator_malloc_version_1</code>, write the calculated Merkle value in it, and return a pointer-size to it.</p>
+<blockquote>
+<p><strong>Note</strong>: Runtimes are encouraged to not perform any further modification to the storage after having called this function. An implementation can use this hint in order to cache the result of its calculation for later.</p>
+</blockquote>
+<h3 id="ext_storage_root_version_2"><a class="header" href="#ext_storage_root_version_2">ext_storage_root_version_2</a></h3>
+<pre><code>(func $ext_storage_root_version_2
+    (param $version i32) (return i64))
+</code></pre>
+<p>This function is deprecated and shouldn't be used by runtimes.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="blocks"><a class="header" href="#blocks">Blocks</a></h1>
 <p>A <strong>block</strong> consists in the following properties:</p>
 <ul>
@@ -273,7 +329,12 @@ TODO</li>
 <h2 id="noise"><a class="header" href="#noise">Noise</a></h2>
 <p>The <strong>Noise</strong> protocol is the the Noise protocol defined <a href="https://noiseprotocol.org/noise.html">https://noiseprotocol.org/noise.html</a> and using the XX handshake.
 TODO libp2p handshake</p>
-<div style="break-before: page; page-break-before: always;"></div><p># Networking protocols</p>
+<h2 id="supported-protocols"><a class="header" href="#supported-protocols">Supported protocols</a></h2>
+<ul>
+<li>TCP/IP</li>
+<li>TCP/IP and WebSocket (secure or not)</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="networking-protocols"><a class="header" href="#networking-protocols">Networking protocols</a></h1>
 <h2 id="request-response-protocols"><a class="header" href="#request-response-protocols">Request-response protocols</a></h2>
 <h3 id="warp-sync"><a class="header" href="#warp-sync">Warp sync</a></h3>
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/sync/warp</code></p>
@@ -284,6 +345,20 @@ https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/pro
 <p>Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.</p>
 <p>An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.</p>
 <p>Implementers should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
+<h2 id="notification-protocols"><a class="header" href="#notification-protocols">Notification protocols</a></h2>
+<h3 id="transactions"><a class="header" href="#transactions">Transactions</a></h3>
+<p>The <em>transactions</em> notifications substream should be opened only after a <em>block announces</em> notifications substream has been opened.</p>
+<p>The <em>handshake</em> of this substream is an empty set of bytes.</p>
+<blockquote>
+<p><strong>Note</strong>: The handshake phase is identical to the one of the other notification protocols and consists in sending a <code>0</code> byte in order to indicate that the handshake payload is empty.</p>
+</blockquote>
+<p>The format of a notification is:</p>
+<ul>
+<li>A SCALE-compact-encoded integer indicating the number of transactions in the message.</li>
+<li>Zero or more transactions.</li>
+</ul>
+<p>Implementers are encouraged to send only one transaction per notification.</p>
+<h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
 <h2 id="other"><a class="header" href="#other">Other</a></h2>
 <h3 id="ping"><a class="header" href="#ping">Ping</a></h3>
 <h3 id="identify"><a class="header" href="#identify">Identify</a></h3>

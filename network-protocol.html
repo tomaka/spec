@@ -142,7 +142,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p># Networking protocols</p>
+                        <h1 id="networking-protocols"><a class="header" href="#networking-protocols">Networking protocols</a></h1>
 <h2 id="request-response-protocols"><a class="header" href="#request-response-protocols">Request-response protocols</a></h2>
 <h3 id="warp-sync"><a class="header" href="#warp-sync">Warp sync</a></h3>
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/sync/warp</code></p>
@@ -153,6 +153,20 @@ https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/pro
 <p>Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.</p>
 <p>An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.</p>
 <p>Implementers should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
+<h2 id="notification-protocols"><a class="header" href="#notification-protocols">Notification protocols</a></h2>
+<h3 id="transactions"><a class="header" href="#transactions">Transactions</a></h3>
+<p>The <em>transactions</em> notifications substream should be opened only after a <em>block announces</em> notifications substream has been opened.</p>
+<p>The <em>handshake</em> of this substream is an empty set of bytes.</p>
+<blockquote>
+<p><strong>Note</strong>: The handshake phase is identical to the one of the other notification protocols and consists in sending a <code>0</code> byte in order to indicate that the handshake payload is empty.</p>
+</blockquote>
+<p>The format of a notification is:</p>
+<ul>
+<li>A SCALE-compact-encoded integer indicating the number of transactions in the message.</li>
+<li>Zero or more transactions.</li>
+</ul>
+<p>Implementers are encouraged to send only one transaction per notification.</p>
+<h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
 <h2 id="other"><a class="header" href="#other">Other</a></h2>
 <h3 id="ping"><a class="header" href="#ping">Ping</a></h3>
 <h3 id="identify"><a class="header" href="#identify">Identify</a></h3>

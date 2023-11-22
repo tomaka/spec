@@ -173,7 +173,63 @@
 </blockquote>
 <p>TODO: do we really need to define entry point</p>
 <h2 id="webassembly-execution"><a class="header" href="#webassembly-execution">WebAssembly execution</a></h2>
-<p>Given a <em>runtime WebAssembly</em>, a <em>runtime entry point</em>, and some input data, the host can <strong>execute</strong> the WebAssembly.</p>
+<p>Given a <em>runtime WebAssembly</em>, a <em>state</em>, a <em>runtime entry point</em>, and some input data, the host can <strong>execute</strong> the WebAssembly.</p>
+<p>While execution is in progress, an implementation must maintain an <em>overlay</em>, defined as the list of modifications performed to the state since the beginning of the execution.</p>
+<p>The following functions can be imported by the <strong>runtime WebAssembly</strong>:</p>
+<h3 id="ext_allocator_malloc_version_1"><a class="header" href="#ext_allocator_malloc_version_1">ext_allocator_malloc_version_1</a></h3>
+<pre><code>(func $ext_allocator_malloc_version_1
+    (param $size i32) (result i32))
+</code></pre>
+<h3 id="ext_allocator_free_version_1"><a class="header" href="#ext_allocator_free_version_1">ext_allocator_free_version_1</a></h3>
+<pre><code>(func $ext_allocator_free_version_1 (param $ptr i32))
+</code></pre>
+<h3 id="ext_storage_set_version_1"><a class="header" href="#ext_storage_set_version_1">ext_storage_set_version_1</a></h3>
+<pre><code>(func $ext_storage_set_version_1
+    (param $key i64) (param $value i64))
+</code></pre>
+<p>With:</p>
+<ul>
+<li><code>key</code>: A pointer-size to the memory location containing the key.</li>
+<li><code>value</code>: A pointer-size to the memory location containing the value.</li>
+</ul>
+<p>The implementation must set the given <em>key</em> to the given <em>value</em> in the <em>overlay</em>.</p>
+<h3 id="ext_storage_get_version_1"><a class="header" href="#ext_storage_get_version_1">ext_storage_get_version_1</a></h3>
+<pre><code>(func $ext_storage_get_version_1
+    (param $key i64) (result i64))
+</code></pre>
+<p>With:</p>
+<ul>
+<li><code>key</code>: A pointer-size to the memory location containing the key.</li>
+<li>The result: a pointer-size.</li>
+</ul>
+<p>If the given <em>key</em> is present in the overlay, TODO</p>
+<h3 id="ext_storage_clear_version_1"><a class="header" href="#ext_storage_clear_version_1">ext_storage_clear_version_1</a></h3>
+<pre><code>(func $ext_storage_clear_version_1
+    (param $key i64))
+</code></pre>
+<p>With:</p>
+<ul>
+<li><code>key</code>: A pointer-size to the memory location containing the key.</li>
+</ul>
+<p>The implementation must set the given <em>key</em> in the <em>overlay</em> to being non-existent.</p>
+<h3 id="ext_storage_root_version_1"><a class="header" href="#ext_storage_root_version_1">ext_storage_root_version_1</a></h3>
+<pre><code>(func $ext_storage_root_version_1
+    (return i64))
+</code></pre>
+<p>With:</p>
+<ul>
+<li>The result: a pointer-size.</li>
+</ul>
+<p>The implementation must build a temporary <em>state</em> by applying the <em>overlay</em> to the state provided as input, then calculate the <em>Merkle value</em> of this temporary state.
+The implementation then allocates a 32 bytes buffer using the same mechanism as <code>ext_allocator_malloc_version_1</code>, write the calculated Merkle value in it, and return a pointer-size to it.</p>
+<blockquote>
+<p><strong>Note</strong>: Runtimes are encouraged to not perform any further modification to the storage after having called this function. An implementation can use this hint in order to cache the result of its calculation for later.</p>
+</blockquote>
+<h3 id="ext_storage_root_version_2"><a class="header" href="#ext_storage_root_version_2">ext_storage_root_version_2</a></h3>
+<pre><code>(func $ext_storage_root_version_2
+    (param $version i32) (return i64))
+</code></pre>
+<p>This function is deprecated and shouldn't be used by runtimes.</p>
 
                     </main>
 
