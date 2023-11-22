@@ -1,4 +1,4 @@
-# Networking protocols
+# Networking protocols
 
 ## Request-response protocols
 
