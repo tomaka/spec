@@ -163,18 +163,19 @@
 <li>TODO: runtime spec</li>
 </ul>
 <p>The <strong>runtime WebAssembly</strong> is allowed to import any function, whatever their signature. A host implementation must not consider a <strong>runtime WebAssembly</strong> as invalid only because it imports an unknown function or a known function with a signature that doesn't match the expected one. A host implementation must raise an error only if such a function is called during the execution of the WebAssembly.</p>
-<h2 id="entry-point"><a class="header" href="#entry-point">Entry point</a></h2>
-<p>A <strong>runtime entry point</strong> is a function exported by the <strong>runtime WebAssembly</strong>, as defined <a href="https://webassembly.github.io/spec/core/bikeshed/#exports%E2%91%A0">in the WebAssembly specification</a>, that has the following signature:</p>
-<blockquote>
-<p>(func $runtime_entry_point (param $data i32) (param $len i32) (result i64))</p>
-</blockquote>
-<blockquote>
-<p><strong>Note</strong>: A <strong>runtime WebAssembly</strong> is allowed to export items that do not match the conditions here, as long as it doesn't conflict with some of the other requirements found in this specification.</p>
-</blockquote>
-<p>TODO: do we really need to define entry point</p>
-<h2 id="webassembly-execution"><a class="header" href="#webassembly-execution">WebAssembly execution</a></h2>
-<p>Given a <em>runtime WebAssembly</em>, a <em>state</em>, a <em>runtime entry point</em>, and some input data, the host can <strong>execute</strong> the WebAssembly.</p>
-<p>While execution is in progress, an implementation must maintain an <em>overlay</em>, defined as the list of modifications performed to the state since the beginning of the execution.</p>
+<h2 id="runtime-call"><a class="header" href="#runtime-call">Runtime call</a></h2>
+<p>Given a <em>runtime WebAssembly</em>, a <em>number of heap pages</em>, a <a href="state.html"><em>state</em></a>, a <em>runtime entry point</em>, an <em>offchain functions enabled</em> boolean, and some input data, the host can <strong>do a runtime call</strong>.</p>
+<p>Doing a runtime call consists in the following step:</p>
+<ul>
+<li>Verify that the <em>runtime entry point</em> is a function exported by the <em>runtime WebAssembly</em>, and whose signature is <code>(func $runtime_entry_point (param $data i32) (param $len i32) (result i64))</code>.</li>
+<li>Instantiate the <em>runtime WebAssembly</em>, as defined <a href="https://webassembly.github.io/spec/core/bikeshed/#instantiation%E2%91%A1">here</a>. The list of imports is described below.</li>
+<li>Initialize the <em>overlay</em>, defined as the list of modifications performed to the state since the beginning of the execution.</li>
+<li>Read the value of the <code>__heap_base</code> global exported by the <em>runtime WebAssembly</em>, and initialize a new <em>allocator</em>.</li>
+<li>Use the allocator in order to allocate a buffer of size equal to the input data. Copy the input data to this buffer.</li>
+<li>Invoke the <em>runtime entry point</em>, as defined <a href="https://webassembly.github.io/spec/core/bikeshed/#invocation%E2%91%A1">here</a>, passing as argument a pointer to the buffer containing the input data and the length of the input data.</li>
+<li>Once the invocation is finished, TODO describe how to get output.</li>
+</ul>
+<p>TODO: talk about memory consumption and halting problem stuff</p>
 <p>The following functions can be imported by the <strong>runtime WebAssembly</strong>:</p>
 <h3 id="ext_allocator_malloc_version_1"><a class="header" href="#ext_allocator_malloc_version_1">ext_allocator_malloc_version_1</a></h3>
 <pre><code>(func $ext_allocator_malloc_version_1
