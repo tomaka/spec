@@ -5,11 +5,11 @@
 The **runtime code** is defined as either:
 
 - The **runtime WebAssembly** (defined below).
-- The bytes `0x52BC537646DB8E05`, followed with the [zstd](https://datatracker.ietf.org/doc/html/rfc8878)-encoded **runtime WebAssembly**.
-
-TODO: limit to the zstd size for zip bombs
+- The bytes `0x52BC537646DB8E05`, followed with the [zstd](https://datatracker.ietf.org/doc/html/rfc8878)-encoded **runtime WebAssembly**. The decoded **runtime WebAssembly** must not be larger than 52428800 bytes (i.e. 50 MiB).
 
 The *runtime WebAssembly* always starts with the bytes `0x0061736D`, making it possible to unambiguously differentiate the two situations.
+
+> **Note**: Implementers should be aware of the danger of so-called "zip bombs" where a zstd-encoded payload decodes to a huge output. Implementers should make sure to cap the size of the output while decoding is in progress.
 
 ## Runtime WebAssembly
 
@@ -21,7 +21,7 @@ The **runtime WebAssembly** is defined as a [WebAssembly](https://webassembly.gi
 - It must export a global named `__heap_base` (with module name `env`) of type `i32`.
 - TODO: runtime spec
 
-The **runtime WebAssembly** is allowed to import any function, whatever their signature. A host implementation must not consider a **runtime WebAssembly** as invalid because it imports an unknown function or a known function with a signature that doesn't match the expected one. When that is the case, a host implementation must raise an error only if that function is called during the execution of the WebAssembly.
+The **runtime WebAssembly** is allowed to import any function, whatever their signature. A host implementation must not consider a **runtime WebAssembly** as invalid only because it imports an unknown function or a known function with a signature that doesn't match the expected one. A host implementation must raise an error only if such a function is called during the execution of the WebAssembly.
 
 ## Entry point
 

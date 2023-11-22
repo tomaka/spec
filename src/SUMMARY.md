@@ -1,4 +1,4 @@
-# Polkadot host specification for relay chain and system parachains
+# Polkadot host specification for relay chains and system parachains
 
 - [State](state.md)
   - [WebAssembly runtime](runtime.md)
