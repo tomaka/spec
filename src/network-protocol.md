@@ -21,6 +21,25 @@ An implementation of the responsing side should make a reasonable effort to send
 
 Implementers should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose **PeerId** is different from the one indicated.
 
+## Notification protocols
+
+### Transactions
+
+The *transactions* notifications substream should be opened only after a *block announces* notifications substream has been opened.
+
+The *handshake* of this substream is an empty set of bytes.
+
+> **Note**: The handshake phase is identical to the one of the other notification protocols and consists in sending a `0` byte in order to indicate that the handshake payload is empty.
+
+The format of a notification is:
+
+- A SCALE-compact-encoded integer indicating the number of transactions in the message.
+- Zero or more transactions.
+
+Implementers are encouraged to send only one transaction per notification.
+
+### Grandpa
+
 ## Other
 
 ### Ping

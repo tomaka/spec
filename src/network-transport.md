@@ -18,3 +18,8 @@ The **multistream-select** protocol is a protocol allowing to negotiate a protoc
 
 The **Noise** protocol is the the Noise protocol defined <https://noiseprotocol.org/noise.html> and using the XX handshake.
 TODO libp2p handshake
+
+## Supported protocols
+
+- TCP/IP
+- TCP/IP and WebSocket (secure or not)

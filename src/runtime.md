@@ -35,4 +35,87 @@ TODO: do we really need to define entry point
 
 ## WebAssembly execution
 
-Given a *runtime WebAssembly*, a *runtime entry point*, and some input data, the host can **execute** the WebAssembly.
+Given a *runtime WebAssembly*, a *state*, a *runtime entry point*, and some input data, the host can **execute** the WebAssembly.
+
+While execution is in progress, an implementation must maintain an *overlay*, defined as the list of modifications performed to the state since the beginning of the execution.
+
+The following functions can be imported by the **runtime WebAssembly**:
+
+### ext_allocator_malloc_version_1
+
+```
+(func $ext_allocator_malloc_version_1
+    (param $size i32) (result i32))
+```
+
+### ext_allocator_free_version_1
+
+```
+(func $ext_allocator_free_version_1 (param $ptr i32))
+```
+
+### ext_storage_set_version_1
+
+```
+(func $ext_storage_set_version_1
+    (param $key i64) (param $value i64))
+```
+
+With:
+
+- `key`: A pointer-size to the memory location containing the key.
+- `value`: A pointer-size to the memory location containing the value.
+
+The implementation must set the given *key* to the given *value* in the *overlay*.
+
+### ext_storage_get_version_1
+
+```
+(func $ext_storage_get_version_1
+    (param $key i64) (result i64))
+```
+
+With:
+
+- `key`: A pointer-size to the memory location containing the key.
+- The result: a pointer-size.
+
+If the given *key* is present in the overlay, TODO
+
+### ext_storage_clear_version_1
+
+```
+(func $ext_storage_clear_version_1
+    (param $key i64))
+```
+
+With:
+
+- `key`: A pointer-size to the memory location containing the key.
+
+The implementation must set the given *key* in the *overlay* to being non-existent.
+
+### ext_storage_root_version_1
+
+```
+(func $ext_storage_root_version_1
+    (return i64))
+```
+
+With:
+
+- The result: a pointer-size.
+
+The implementation must build a temporary *state* by applying the *overlay* to the state provided as input, then calculate the *Merkle value* of this temporary state.
+The implementation then allocates a 32 bytes buffer using the same mechanism as `ext_allocator_malloc_version_1`, write the calculated Merkle value in it, and return a pointer-size to it.
+
+> **Note**: Runtimes are encouraged to not perform any further modification to the storage after having called this function. An implementation can use this hint in order to cache the result of its calculation for later.
+
+### ext_storage_root_version_2
+
+```
+(func $ext_storage_root_version_2
+    (param $version i32) (return i64))
+```
+
+This function is deprecated and shouldn't be used by runtimes.
