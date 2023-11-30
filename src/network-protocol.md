@@ -26,7 +26,7 @@ Invalid multiaddresses should be ignored. Implementations should not consider th
 
 An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.
 
-Implementers should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose **PeerId** is different from the one indicated.
+The requesting side should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose **PeerId** is different from the one indicated.
 
 > **Note**: This protocol is identical to the Kademlia protocol of the libp2p library.
 
@@ -82,6 +82,7 @@ The format of a notification is:
 - Zero or more transactions.
 
 Implementers are encouraged to send only one transaction per notification.
+TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished
 
 ### Grandpa
 

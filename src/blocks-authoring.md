@@ -14,7 +14,7 @@ TODO: a block is always better if it is in the finalized chain
 
 ## Validators set
 
-The **Aura validators set** and the **Babe validators set** of a block can be determined in two different ways: through block headers and through a runtime call. The block headers method isn't available for genesis blocks (in other words, blocks whose `number` is equal to 0).
+The **Aura validators set** and the **Babe validators set** of a block can be determined in two different ways: through block headers and through a runtime call. Only the runtime call method is available for genesis blocks (in other words, blocks whose *block number* is equal to 0).
 
 Through block headers:
 
@@ -40,7 +40,7 @@ Given a block and an sr25519 private key, the next **claimable Babe primary slot
 
 Given a block and an sr25519 public key, the next **claimable Babe secondary slot** of a block is:
 
-- If the sr25519 public key is not part of the Aura validators set of that block: never.
+- If the sr25519 public key is not part of the Babe validators set of that block: never.
 - TODO
 
 Given a block and an ed25519 public key, the next **claimable Aura slot** of a block is:
@@ -50,14 +50,34 @@ Given a block and an ed25519 public key, the next **claimable Aura slot** of a b
 
 ## Authoring a block
 
-Given a set of blocks and an ed25519 or an sr25519 private key, **authoring a block** consists in the following steps:
+Given a set of blocks, an ed25519 or an sr25519 private key, and a list of transactions TODO detail what that means, **authoring a block** consists in the following steps:
 
-- Find the best block amongst that set using the **better block** algorithm described above.
-- Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and key combination.
-- Wait until one of these three slots, whichever comes first.
-- TODO: magic
+- Find the *best block* amongst that set using the **better block** algorithm described above.
+- Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and private key combination.
+- Wait until one of these three slots, whichever comes first. TODO: explain how to convert to timestamp
+- Do a runtime call for `Core_initialize_block` using the state of the *best block* (see above), passing as parameter an *unsigned block header* with the following field values:
+  - *Parent_hash* must be equal to the hash of the *best block*.
+  - *Block number* must be equal to the *block number* of the *best block* plus one.
+  - *State root* must be all zeroes.
+  - *Extrinsics root* must be all zeroes.
+  - One digest item: if the slot is an Aura slot, TODO finish.
+- Call `BlockBuilder_inherent_extrinsics` TODO detail the input  TODO: it's not possible to decode the output without the runtime at the moment
+- For each extrinsic returned `BlockBuilder_inherent_extrinsics`, call `BlockBuilder_apply_extrinsic`. TODO detail return value
+- For each transaction, call `BlockBuilder_apply_extrinsic`. TODO details and indicate for how long
+- Call `BlockBuilder_finalize_block`, with an empty input.
 - Create a digital signature of the *unsigned block header* using the ed25519 or sr25519 private key.
-- Add to the digest items of the unsigned block header either an *Aura seal* or a *Babe seal* (depending on whether the slot was an Aura slot or a Babe slot) item containing the signature, in order to obtain a *block header*.
+- Add to the digest items of the *unsigned block header* either an *Aura seal* or a *Babe seal* (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature, in order to obtain a *block header*.
 
 If at any point in the future the client authors a block again using the same private key, it **must** include in the set of blocks the newly-authored block.
 This constraint is necessary in order to guarantee that no two blocks using the same key are authored using the same slot.
+
+### Inherents
+
+The **inherents** are defined as the concatenation of the following bytes:
+
+- The SCALE-compact encoding of the number `2` (indicating the number of inherents).
+- The ASCII string `timstap0`.
+- TODO len
+- A little-endian 64bits unsigned integer containing the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.
+
+TODO parachain inherents
