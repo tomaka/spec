@@ -31,7 +31,7 @@ Through a runtime call:
 
 A client implementation can assume that these two methods produce the same result. TODO: what if it doesn't
 
-## Next slot claim
+## Next slot claim
 
 Given a block and an sr25519 private key, the next **claimable Babe primary slot** of a block is:
 
