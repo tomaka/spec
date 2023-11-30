@@ -3,6 +3,8 @@
 - [State](state.md)
   - [WebAssembly runtime](runtime.md)
 - [Blocks](blocks.md)
+  - [Blocks verification](blocks-verification.md)
+  - [Blocks authoring](blocks-authoring.md)
 - [Parachains](parachains.md)
 - [Networking](network.md)
   - [Transport](network-transport.md)

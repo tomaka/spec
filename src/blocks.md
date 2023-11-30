@@ -38,33 +38,12 @@ A **genesis block header** is a **block header** that respects the following con
 - The *extrinsics root* is equal to the *Merkle value* of an empty trie.
 - The list of digest items is empty.
 
-## Header validation
+## Better block
 
-A host can *validate* a block header.
+Given two block headers A and B, we can define the **better block** as follows:
 
-A **genesis block header** is always valid and doesn't need to be validated.
+- If A's *parent hash* is equal to B, then A is a better block than B.
+- The better block is transitive: if A is a better block than a block header C, and that block header C is a better block than block header B, then A is also a better block header than block header B.
+- If the total number of Babe primary slots claims on A is superior to the total number of Babe primary slots claims on B, then A is a better block than B. TODO: define Babe primary slots claims
 
-Validating a non-genesis block header is done by following these steps:
-
-- Validating the *block header* whose hash is equal to the *parent hash* of the block to validate.
-- Verify that the *block number* of the block header to verify is equal to the *block number* of the parent plus one.
-TODO
-
-## Block execution
-
-A host can *execute* a block. Executing a block also validates the header of this block.
-
-A genesis block is assumed to always succeed execution.
-
-Executing a block is done by following these steps:
-
-- Executing the block whose hash is equal to the *parent hash* of the block to execute.
-- Obtain the *state root* of the block header whose hash is equal to the *parent hash* of the block to execute.
-- Obtain the state whose state root is equal to the *state root* obtained at the previous step.
-- Obtain the *runtime WebAssembly code* of that state.
-- TODO check entry point API version
-- Execute the entry point named *BlockBuilder_check_inherents*.
-- Execute the entry point named *Core_execute_block*. The input is equal to the concatenation of the *block header* to verify with the body of the block. If execution fails, then the block is invalid. The output must be empty.
-- Check whether the new state is valid. TODO means check if new runtime code is valid, something else?
-
-> **Note**: The block execution will fail if the body that was provided doesn't correspond to the *extrinsics root* field of the header. If the block was downloaded from an untrusted source, implementers should be aware that the body might have been modified by this untrusted source. For this reason, in that situation implementers are encouraged to check whether the body matches the *extrinsics root* prior to starting the execution.
+TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html
