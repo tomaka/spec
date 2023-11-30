@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Parachains</title>
+        <title>Blocks authoring</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="parachains.html" class="active"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html" class="active"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -142,26 +142,76 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="parachains"><a class="header" href="#parachains">Parachains</a></h1>
-<h2 id="collation"><a class="header" href="#collation">Collation</a></h2>
-<p>A <strong>collation</strong> is a collection of bytes defined as the concatenation of:</p>
+                        <h1 id="blocks-authoring"><a class="header" href="#blocks-authoring">Blocks authoring</a></h1>
+<h2 id="better-block"><a class="header" href="#better-block">Better block</a></h2>
+<p>Given two block headers A and B, we can define the <strong>better block</strong> as follows:</p>
 <ul>
-<li></li>
-<li></li>
-<li></li>
-<li></li>
-<li></li>
+<li>If A's <em>parent hash</em> is equal to B, then A is a better block than B.</li>
+<li>The better block is transitive: if A is a better block than a block header C, and that block header C is a better block than block header B, then A is also a better block header than block header B.</li>
+<li>If the total number of Babe primary slots claims on A is superior to the total number of Babe primary slots claims on B, then A is a better block than B. TODO: define Babe primary slots claims</li>
 </ul>
+<p>TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</p>
+<p>TODO: a block is always better if it is in the finalized chain</p>
+<h2 id="validators-set"><a class="header" href="#validators-set">Validators set</a></h2>
+<p>The <strong>Aura validators set</strong> and the <strong>Babe validators set</strong> of a block can be determined in two different ways: through block headers and through a runtime call. The block headers method isn't available for genesis blocks (in other words, blocks whose <code>number</code> is equal to 0).</p>
+<p>Through block headers:</p>
+<ul>
+<li>For the <strong>Aura validators set</strong>:
+<ul>
+<li>If the block doesn't have any Aura digest item, the Aura validators set is empty.</li>
+<li>If the block has an Aura consensus digest item of type &quot;Authorities change&quot;, the Aura validators set is equal to that list. TODO: what if there's a OnDisabled in the same block header</li>
+<li>Otherwise, the Aura validators set is identical to the Aura validators set of the block whose hash is equal to the <code>parent_hash</code> of the block.</li>
+</ul>
+</li>
+<li>TODO babe</li>
+</ul>
+<p>Through a runtime call:</p>
+<ul>
+<li>For the <strong>Aura validators set</strong>:
+<ul>
+<li>AuraApi_authorities</li>
+</ul>
+</li>
+</ul>
+<p>A client implementation can assume that these two methods produce the same result. TODO: what if it doesn't</p>
+<p>## Next slot claim</p>
+<p>Given a block and an sr25519 private key, the next <strong>claimable Babe primary slot</strong> of a block is:</p>
+<ul>
+<li>If the sr25519 public key correspondoing to the private key is not part of the Babe validators set of that block: never.</li>
+<li>TODO</li>
+</ul>
+<p>Given a block and an sr25519 public key, the next <strong>claimable Babe secondary slot</strong> of a block is:</p>
+<ul>
+<li>If the sr25519 public key is not part of the Aura validators set of that block: never.</li>
+<li>TODO</li>
+</ul>
+<p>Given a block and an ed25519 public key, the next <strong>claimable Aura slot</strong> of a block is:</p>
+<ul>
+<li>If the ed25519 public key is not part of the Aura validators set of that block: never.</li>
+<li>TODO</li>
+</ul>
+<h2 id="authoring-a-block"><a class="header" href="#authoring-a-block">Authoring a block</a></h2>
+<p>Given a set of blocks and an ed25519 or an sr25519 private key, <strong>authoring a block</strong> consists in the following steps:</p>
+<ul>
+<li>Find the best block amongst that set using the <strong>better block</strong> algorithm described above.</li>
+<li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and key combination.</li>
+<li>Wait until one of these three slots, whichever comes first.</li>
+<li>TODO: magic</li>
+<li>Create a digital signature of the <em>unsigned block header</em> using the ed25519 or sr25519 private key.</li>
+<li>Add to the digest items of the unsigned block header either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) item containing the signature, in order to obtain a <em>block header</em>.</li>
+</ul>
+<p>If at any point in the future the client authors a block again using the same private key, it <strong>must</strong> include in the set of blocks the newly-authored block.
+This constraint is necessary in order to guarantee that no two blocks using the same key are authored using the same slot.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="blocks-authoring.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="blocks-verification.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="network.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="parachains.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -171,11 +221,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="blocks-authoring.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="blocks-verification.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="network.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="parachains.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

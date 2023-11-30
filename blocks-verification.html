@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Parachains</title>
+        <title>Blocks verification</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="parachains.html" class="active"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html" class="active"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -142,26 +142,48 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="parachains"><a class="header" href="#parachains">Parachains</a></h1>
-<h2 id="collation"><a class="header" href="#collation">Collation</a></h2>
-<p>A <strong>collation</strong> is a collection of bytes defined as the concatenation of:</p>
+                        <h1 id="blocks-verification"><a class="header" href="#blocks-verification">Blocks verification</a></h1>
+<p>There exists two levels of verification of a block: validating the block and executing the block.</p>
+<p>A client implementation can assume that a block that successfully executes also successfully validates.
+TODO: say that it's a runtime bug it it's not the case or something</p>
+<h2 id="header-validation"><a class="header" href="#header-validation">Header validation</a></h2>
+<p>A host can <em>validate</em> a block header.</p>
+<p>A <strong>genesis block header</strong> is always valid and doesn't need to be validated.</p>
+<p>Validating a non-genesis block header is done by following these steps:</p>
 <ul>
-<li></li>
-<li></li>
-<li></li>
-<li></li>
-<li></li>
+<li>Validating the <em>block header</em> whose hash is equal to the <em>parent hash</em> of the block to validate.</li>
+<li>Verify that the <em>block number</em> of the block header to verify is equal to the <em>block number</em> of the parent plus one.
+TODO</li>
 </ul>
+<h2 id="block-execution"><a class="header" href="#block-execution">Block execution</a></h2>
+<p>A host can <em>execute</em> a block. Executing a block also validates the header of this block.</p>
+<p>A genesis block is assumed to always succeed execution.</p>
+<p>Executing a block is done by following these steps:</p>
+<ul>
+<li>Executing the block whose hash is equal to the <em>parent hash</em> of the block to execute.</li>
+<li>Obtain the <em>state root</em> of the block header whose hash is equal to the <em>parent hash</em> of the block to execute.</li>
+<li>Obtain the state whose state root is equal to the <em>state root</em> obtained at the previous step.</li>
+<li>Obtain the <em>runtime WebAssembly code</em> of that state.</li>
+<li>TODO check entry point API version</li>
+<li>Execute the entry point named <em>BlockBuilder_check_inherents</em>.</li>
+<li>Execute the entry point named <em>Core_execute_block</em>. The input is equal to the concatenation of the <em>block header</em> to verify with the body of the block. If execution fails, then the block is invalid. The output must be empty.</li>
+<li>Check whether the new state is valid. TODO means check if new runtime code is valid, something else?</li>
+</ul>
+<blockquote>
+<p><strong>Note</strong>: The block execution will fail if the body that was provided doesn't correspond to the <em>extrinsics root</em> field of the header. If the block was downloaded from an untrusted source, implementers should be aware that the body might have been modified by this untrusted source. For this reason, in that situation implementers are encouraged to check whether the body matches the <em>extrinsics root</em> prior to starting the execution.</p>
+</blockquote>
+<p>Because the block execution requires providing a timestamp, its execution may succeed or fail based on this timestamp. A client implementation can assume that a block execution that has succeeded with a certain timestamp will always succeed as well with any newer timestamp. In other words, once a block has executed successfully once, executing it again in the future will succeed as well.</p>
+<p>TODO: should a host try executing again in case the execution succeeds in the future? the answer is no but this must be clarified</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="blocks-authoring.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="blocks.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="network.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="blocks-authoring.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -171,11 +193,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="blocks-authoring.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="blocks.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="network.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="blocks-authoring.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

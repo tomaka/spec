@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html" class="active"><strong aria-hidden="true">2.</strong> Blocks</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html" class="active"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -176,32 +176,14 @@
 <li>The <em>extrinsics root</em> is equal to the <em>Merkle value</em> of an empty trie.</li>
 <li>The list of digest items is empty.</li>
 </ul>
-<h2 id="header-validation"><a class="header" href="#header-validation">Header validation</a></h2>
-<p>A host can <em>validate</em> a block header.</p>
-<p>A <strong>genesis block header</strong> is always valid and doesn't need to be validated.</p>
-<p>Validating a non-genesis block header is done by following these steps:</p>
+<h2 id="better-block"><a class="header" href="#better-block">Better block</a></h2>
+<p>Given two block headers A and B, we can define the <strong>better block</strong> as follows:</p>
 <ul>
-<li>Validating the <em>block header</em> whose hash is equal to the <em>parent hash</em> of the block to validate.</li>
-<li>Verify that the <em>block number</em> of the block header to verify is equal to the <em>block number</em> of the parent plus one.
-TODO</li>
+<li>If A's <em>parent hash</em> is equal to B, then A is a better block than B.</li>
+<li>The better block is transitive: if A is a better block than a block header C, and that block header C is a better block than block header B, then A is also a better block header than block header B.</li>
+<li>If the total number of Babe primary slots claims on A is superior to the total number of Babe primary slots claims on B, then A is a better block than B. TODO: define Babe primary slots claims</li>
 </ul>
-<h2 id="block-execution"><a class="header" href="#block-execution">Block execution</a></h2>
-<p>A host can <em>execute</em> a block. Executing a block also validates the header of this block.</p>
-<p>A genesis block is assumed to always succeed execution.</p>
-<p>Executing a block is done by following these steps:</p>
-<ul>
-<li>Executing the block whose hash is equal to the <em>parent hash</em> of the block to execute.</li>
-<li>Obtain the <em>state root</em> of the block header whose hash is equal to the <em>parent hash</em> of the block to execute.</li>
-<li>Obtain the state whose state root is equal to the <em>state root</em> obtained at the previous step.</li>
-<li>Obtain the <em>runtime WebAssembly code</em> of that state.</li>
-<li>TODO check entry point API version</li>
-<li>Execute the entry point named <em>BlockBuilder_check_inherents</em>.</li>
-<li>Execute the entry point named <em>Core_execute_block</em>. The input is equal to the concatenation of the <em>block header</em> to verify with the body of the block. If execution fails, then the block is invalid. The output must be empty.</li>
-<li>Check whether the new state is valid. TODO means check if new runtime code is valid, something else?</li>
-</ul>
-<blockquote>
-<p><strong>Note</strong>: The block execution will fail if the body that was provided doesn't correspond to the <em>extrinsics root</em> field of the header. If the block was downloaded from an untrusted source, implementers should be aware that the body might have been modified by this untrusted source. For this reason, in that situation implementers are encouraged to check whether the body matches the <em>extrinsics root</em> prior to starting the execution.</p>
-</blockquote>
+<p>TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</p>
 
                     </main>
 
@@ -211,7 +193,7 @@ TODO</li>
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="parachains.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="blocks-verification.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -225,7 +207,7 @@ TODO</li>
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="parachains.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="blocks-verification.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

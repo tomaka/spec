@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -290,6 +290,18 @@ The implementation then allocates a 32 bytes buffer using the same mechanism as 
 <li>The <em>extrinsics root</em> is equal to the <em>Merkle value</em> of an empty trie.</li>
 <li>The list of digest items is empty.</li>
 </ul>
+<h2 id="better-block"><a class="header" href="#better-block">Better block</a></h2>
+<p>Given two block headers A and B, we can define the <strong>better block</strong> as follows:</p>
+<ul>
+<li>If A's <em>parent hash</em> is equal to B, then A is a better block than B.</li>
+<li>The better block is transitive: if A is a better block than a block header C, and that block header C is a better block than block header B, then A is also a better block header than block header B.</li>
+<li>If the total number of Babe primary slots claims on A is superior to the total number of Babe primary slots claims on B, then A is a better block than B. TODO: define Babe primary slots claims</li>
+</ul>
+<p>TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="blocks-verification"><a class="header" href="#blocks-verification">Blocks verification</a></h1>
+<p>There exists two levels of verification of a block: validating the block and executing the block.</p>
+<p>A client implementation can assume that a block that successfully executes also successfully validates.
+TODO: say that it's a runtime bug it it's not the case or something</p>
 <h2 id="header-validation"><a class="header" href="#header-validation">Header validation</a></h2>
 <p>A host can <em>validate</em> a block header.</p>
 <p>A <strong>genesis block header</strong> is always valid and doesn't need to be validated.</p>
@@ -316,6 +328,68 @@ TODO</li>
 <blockquote>
 <p><strong>Note</strong>: The block execution will fail if the body that was provided doesn't correspond to the <em>extrinsics root</em> field of the header. If the block was downloaded from an untrusted source, implementers should be aware that the body might have been modified by this untrusted source. For this reason, in that situation implementers are encouraged to check whether the body matches the <em>extrinsics root</em> prior to starting the execution.</p>
 </blockquote>
+<p>Because the block execution requires providing a timestamp, its execution may succeed or fail based on this timestamp. A client implementation can assume that a block execution that has succeeded with a certain timestamp will always succeed as well with any newer timestamp. In other words, once a block has executed successfully once, executing it again in the future will succeed as well.</p>
+<p>TODO: should a host try executing again in case the execution succeeds in the future? the answer is no but this must be clarified</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="blocks-authoring"><a class="header" href="#blocks-authoring">Blocks authoring</a></h1>
+<h2 id="better-block-1"><a class="header" href="#better-block-1">Better block</a></h2>
+<p>Given two block headers A and B, we can define the <strong>better block</strong> as follows:</p>
+<ul>
+<li>If A's <em>parent hash</em> is equal to B, then A is a better block than B.</li>
+<li>The better block is transitive: if A is a better block than a block header C, and that block header C is a better block than block header B, then A is also a better block header than block header B.</li>
+<li>If the total number of Babe primary slots claims on A is superior to the total number of Babe primary slots claims on B, then A is a better block than B. TODO: define Babe primary slots claims</li>
+</ul>
+<p>TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</p>
+<p>TODO: a block is always better if it is in the finalized chain</p>
+<h2 id="validators-set"><a class="header" href="#validators-set">Validators set</a></h2>
+<p>The <strong>Aura validators set</strong> and the <strong>Babe validators set</strong> of a block can be determined in two different ways: through block headers and through a runtime call. The block headers method isn't available for genesis blocks (in other words, blocks whose <code>number</code> is equal to 0).</p>
+<p>Through block headers:</p>
+<ul>
+<li>For the <strong>Aura validators set</strong>:
+<ul>
+<li>If the block doesn't have any Aura digest item, the Aura validators set is empty.</li>
+<li>If the block has an Aura consensus digest item of type &quot;Authorities change&quot;, the Aura validators set is equal to that list. TODO: what if there's a OnDisabled in the same block header</li>
+<li>Otherwise, the Aura validators set is identical to the Aura validators set of the block whose hash is equal to the <code>parent_hash</code> of the block.</li>
+</ul>
+</li>
+<li>TODO babe</li>
+</ul>
+<p>Through a runtime call:</p>
+<ul>
+<li>For the <strong>Aura validators set</strong>:
+<ul>
+<li>AuraApi_authorities</li>
+</ul>
+</li>
+</ul>
+<p>A client implementation can assume that these two methods produce the same result. TODO: what if it doesn't</p>
+<p>## Next slot claim</p>
+<p>Given a block and an sr25519 private key, the next <strong>claimable Babe primary slot</strong> of a block is:</p>
+<ul>
+<li>If the sr25519 public key correspondoing to the private key is not part of the Babe validators set of that block: never.</li>
+<li>TODO</li>
+</ul>
+<p>Given a block and an sr25519 public key, the next <strong>claimable Babe secondary slot</strong> of a block is:</p>
+<ul>
+<li>If the sr25519 public key is not part of the Aura validators set of that block: never.</li>
+<li>TODO</li>
+</ul>
+<p>Given a block and an ed25519 public key, the next <strong>claimable Aura slot</strong> of a block is:</p>
+<ul>
+<li>If the ed25519 public key is not part of the Aura validators set of that block: never.</li>
+<li>TODO</li>
+</ul>
+<h2 id="authoring-a-block"><a class="header" href="#authoring-a-block">Authoring a block</a></h2>
+<p>Given a set of blocks and an ed25519 or an sr25519 private key, <strong>authoring a block</strong> consists in the following steps:</p>
+<ul>
+<li>Find the best block amongst that set using the <strong>better block</strong> algorithm described above.</li>
+<li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and key combination.</li>
+<li>Wait until one of these three slots, whichever comes first.</li>
+<li>TODO: magic</li>
+<li>Create a digital signature of the <em>unsigned block header</em> using the ed25519 or sr25519 private key.</li>
+<li>Add to the digest items of the unsigned block header either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) item containing the signature, in order to obtain a <em>block header</em>.</li>
+</ul>
+<p>If at any point in the future the client authors a block again using the same private key, it <strong>must</strong> include in the set of blocks the newly-authored block.
+This constraint is necessary in order to guarantee that no two blocks using the same key are authored using the same slot.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="parachains"><a class="header" href="#parachains">Parachains</a></h1>
 <h2 id="collation"><a class="header" href="#collation">Collation</a></h2>
 <p>A <strong>collation</strong> is a collection of bytes defined as the concatenation of:</p>
@@ -333,13 +407,18 @@ TODO</li>
 <h2 id="peerid"><a class="header" href="#peerid">PeerId</a></h2>
 <p>A <strong>PeerId</strong> is defined as the concatenation of the bytes <code>0x002408011220</code> with a 32 bytes <a href="https://www.rfc-editor.org/rfc/rfc8032.txt">ed25519</a> public key.</p>
 <blockquote>
-<p><strong>Note</strong>: A <strong>PeerId</strong> used to be defined as a multihash encoding of a protobuf struct containing another protobuf struct containing the public key. In order to prevent the same public key from being representable as multiple different <strong>PeerId</strong>s, all implementations must encode this in a single consistent way.</p>
+<p><strong>Note</strong>: A <strong>PeerId</strong> used to be defined as a multihash encoding of a protobuf struct containing another protobuf struct containing the public key. In order to prevent the same public key from being representable as multiple different <strong>PeerId</strong>s, all implementations must encode this in a single consistent way that is more easily defined as specific bytes.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note</strong>: A <strong>PeerId</strong> is usually displayed to programmers and end users as the <em>base58</em> encoding of its bytes.</p>
 </blockquote>
 <h2 id="multistream-select"><a class="header" href="#multistream-select">multistream-select</a></h2>
 <p>The <strong>multistream-select</strong> protocol is a protocol allowing to negotiate a protocol.</p>
 <h2 id="noise"><a class="header" href="#noise">Noise</a></h2>
-<p>The <strong>Noise</strong> protocol is the the Noise protocol defined <a href="https://noiseprotocol.org/noise.html">https://noiseprotocol.org/noise.html</a> and using the XX handshake.
+<p>The <strong>Noise</strong> protocol is the the Noise protocol defined by <a href="https://noiseprotocol.org/noise.html">https://noiseprotocol.org/noise.html</a> and using the XX handshake.
 TODO libp2p handshake</p>
+<h2 id="yamux"><a class="header" href="#yamux">Yamux</a></h2>
+<p>TODO: https://github.com/hashicorp/yamux/blob/master/spec.md</p>
 <h2 id="supported-protocols"><a class="header" href="#supported-protocols">Supported protocols</a></h2>
 <ul>
 <li>TCP/IP</li>
