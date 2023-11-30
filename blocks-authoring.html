@@ -153,7 +153,7 @@
 <p>TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</p>
 <p>TODO: a block is always better if it is in the finalized chain</p>
 <h2 id="validators-set"><a class="header" href="#validators-set">Validators set</a></h2>
-<p>The <strong>Aura validators set</strong> and the <strong>Babe validators set</strong> of a block can be determined in two different ways: through block headers and through a runtime call. The block headers method isn't available for genesis blocks (in other words, blocks whose <code>number</code> is equal to 0).</p>
+<p>The <strong>Aura validators set</strong> and the <strong>Babe validators set</strong> of a block can be determined in two different ways: through block headers and through a runtime call. Only the runtime call method is available for genesis blocks (in other words, blocks whose <em>block number</em> is equal to 0).</p>
 <p>Through block headers:</p>
 <ul>
 <li>For the <strong>Aura validators set</strong>:
@@ -182,7 +182,7 @@
 </ul>
 <p>Given a block and an sr25519 public key, the next <strong>claimable Babe secondary slot</strong> of a block is:</p>
 <ul>
-<li>If the sr25519 public key is not part of the Aura validators set of that block: never.</li>
+<li>If the sr25519 public key is not part of the Babe validators set of that block: never.</li>
 <li>TODO</li>
 </ul>
 <p>Given a block and an ed25519 public key, the next <strong>claimable Aura slot</strong> of a block is:</p>
@@ -191,17 +191,38 @@
 <li>TODO</li>
 </ul>
 <h2 id="authoring-a-block"><a class="header" href="#authoring-a-block">Authoring a block</a></h2>
-<p>Given a set of blocks and an ed25519 or an sr25519 private key, <strong>authoring a block</strong> consists in the following steps:</p>
+<p>Given a set of blocks, an ed25519 or an sr25519 private key, and a list of transactions TODO detail what that means, <strong>authoring a block</strong> consists in the following steps:</p>
 <ul>
-<li>Find the best block amongst that set using the <strong>better block</strong> algorithm described above.</li>
-<li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and key combination.</li>
-<li>Wait until one of these three slots, whichever comes first.</li>
-<li>TODO: magic</li>
+<li>Find the <em>best block</em> amongst that set using the <strong>better block</strong> algorithm described above.</li>
+<li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and private key combination.</li>
+<li>Wait until one of these three slots, whichever comes first. TODO: explain how to convert to timestamp</li>
+<li>Do a runtime call for <code>Core_initialize_block</code> using the state of the <em>best block</em> (see above), passing as parameter an <em>unsigned block header</em> with the following field values:
+<ul>
+<li><em>Parent_hash</em> must be equal to the hash of the <em>best block</em>.</li>
+<li><em>Block number</em> must be equal to the <em>block number</em> of the <em>best block</em> plus one.</li>
+<li><em>State root</em> must be all zeroes.</li>
+<li><em>Extrinsics root</em> must be all zeroes.</li>
+<li>One digest item: if the slot is an Aura slot, TODO finish.</li>
+</ul>
+</li>
+<li>Call <code>BlockBuilder_inherent_extrinsics</code> TODO detail the input  TODO: it's not possible to decode the output without the runtime at the moment</li>
+<li>For each extrinsic returned <code>BlockBuilder_inherent_extrinsics</code>, call <code>BlockBuilder_apply_extrinsic</code>. TODO detail return value</li>
+<li>For each transaction, call <code>BlockBuilder_apply_extrinsic</code>. TODO details and indicate for how long</li>
+<li>Call <code>BlockBuilder_finalize_block</code>, with an empty input.</li>
 <li>Create a digital signature of the <em>unsigned block header</em> using the ed25519 or sr25519 private key.</li>
-<li>Add to the digest items of the unsigned block header either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) item containing the signature, in order to obtain a <em>block header</em>.</li>
+<li>Add to the digest items of the <em>unsigned block header</em> either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature, in order to obtain a <em>block header</em>.</li>
 </ul>
 <p>If at any point in the future the client authors a block again using the same private key, it <strong>must</strong> include in the set of blocks the newly-authored block.
 This constraint is necessary in order to guarantee that no two blocks using the same key are authored using the same slot.</p>
+<h3 id="inherents"><a class="header" href="#inherents">Inherents</a></h3>
+<p>The <strong>inherents</strong> are defined as the concatenation of the following bytes:</p>
+<ul>
+<li>The SCALE-compact encoding of the number <code>2</code> (indicating the number of inherents).</li>
+<li>The ASCII string <code>timstap0</code>.</li>
+<li>TODO len</li>
+<li>A little-endian 64bits unsigned integer containing the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.</li>
+</ul>
+<p>TODO parachain inherents</p>
 
                     </main>
 

@@ -341,7 +341,7 @@ TODO</li>
 <p>TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</p>
 <p>TODO: a block is always better if it is in the finalized chain</p>
 <h2 id="validators-set"><a class="header" href="#validators-set">Validators set</a></h2>
-<p>The <strong>Aura validators set</strong> and the <strong>Babe validators set</strong> of a block can be determined in two different ways: through block headers and through a runtime call. The block headers method isn't available for genesis blocks (in other words, blocks whose <code>number</code> is equal to 0).</p>
+<p>The <strong>Aura validators set</strong> and the <strong>Babe validators set</strong> of a block can be determined in two different ways: through block headers and through a runtime call. Only the runtime call method is available for genesis blocks (in other words, blocks whose <em>block number</em> is equal to 0).</p>
 <p>Through block headers:</p>
 <ul>
 <li>For the <strong>Aura validators set</strong>:
@@ -370,7 +370,7 @@ TODO</li>
 </ul>
 <p>Given a block and an sr25519 public key, the next <strong>claimable Babe secondary slot</strong> of a block is:</p>
 <ul>
-<li>If the sr25519 public key is not part of the Aura validators set of that block: never.</li>
+<li>If the sr25519 public key is not part of the Babe validators set of that block: never.</li>
 <li>TODO</li>
 </ul>
 <p>Given a block and an ed25519 public key, the next <strong>claimable Aura slot</strong> of a block is:</p>
@@ -379,17 +379,38 @@ TODO</li>
 <li>TODO</li>
 </ul>
 <h2 id="authoring-a-block"><a class="header" href="#authoring-a-block">Authoring a block</a></h2>
-<p>Given a set of blocks and an ed25519 or an sr25519 private key, <strong>authoring a block</strong> consists in the following steps:</p>
+<p>Given a set of blocks, an ed25519 or an sr25519 private key, and a list of transactions TODO detail what that means, <strong>authoring a block</strong> consists in the following steps:</p>
 <ul>
-<li>Find the best block amongst that set using the <strong>better block</strong> algorithm described above.</li>
-<li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and key combination.</li>
-<li>Wait until one of these three slots, whichever comes first.</li>
-<li>TODO: magic</li>
+<li>Find the <em>best block</em> amongst that set using the <strong>better block</strong> algorithm described above.</li>
+<li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and private key combination.</li>
+<li>Wait until one of these three slots, whichever comes first. TODO: explain how to convert to timestamp</li>
+<li>Do a runtime call for <code>Core_initialize_block</code> using the state of the <em>best block</em> (see above), passing as parameter an <em>unsigned block header</em> with the following field values:
+<ul>
+<li><em>Parent_hash</em> must be equal to the hash of the <em>best block</em>.</li>
+<li><em>Block number</em> must be equal to the <em>block number</em> of the <em>best block</em> plus one.</li>
+<li><em>State root</em> must be all zeroes.</li>
+<li><em>Extrinsics root</em> must be all zeroes.</li>
+<li>One digest item: if the slot is an Aura slot, TODO finish.</li>
+</ul>
+</li>
+<li>Call <code>BlockBuilder_inherent_extrinsics</code> TODO detail the input  TODO: it's not possible to decode the output without the runtime at the moment</li>
+<li>For each extrinsic returned <code>BlockBuilder_inherent_extrinsics</code>, call <code>BlockBuilder_apply_extrinsic</code>. TODO detail return value</li>
+<li>For each transaction, call <code>BlockBuilder_apply_extrinsic</code>. TODO details and indicate for how long</li>
+<li>Call <code>BlockBuilder_finalize_block</code>, with an empty input.</li>
 <li>Create a digital signature of the <em>unsigned block header</em> using the ed25519 or sr25519 private key.</li>
-<li>Add to the digest items of the unsigned block header either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) item containing the signature, in order to obtain a <em>block header</em>.</li>
+<li>Add to the digest items of the <em>unsigned block header</em> either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature, in order to obtain a <em>block header</em>.</li>
 </ul>
 <p>If at any point in the future the client authors a block again using the same private key, it <strong>must</strong> include in the set of blocks the newly-authored block.
 This constraint is necessary in order to guarantee that no two blocks using the same key are authored using the same slot.</p>
+<h3 id="inherents"><a class="header" href="#inherents">Inherents</a></h3>
+<p>The <strong>inherents</strong> are defined as the concatenation of the following bytes:</p>
+<ul>
+<li>The SCALE-compact encoding of the number <code>2</code> (indicating the number of inherents).</li>
+<li>The ASCII string <code>timstap0</code>.</li>
+<li>TODO len</li>
+<li>A little-endian 64bits unsigned integer containing the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.</li>
+</ul>
+<p>TODO parachain inherents</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="parachains"><a class="header" href="#parachains">Parachains</a></h1>
 <h2 id="collation"><a class="header" href="#collation">Collation</a></h2>
 <p>A <strong>collation</strong> is a collection of bytes defined as the concatenation of:</p>
@@ -450,7 +471,7 @@ TODO libp2p handshake</p>
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/kad</code></p>
 <p>Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.</p>
 <p>An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.</p>
-<p>Implementers should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
+<p>The requesting side should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
 <blockquote>
 <p><strong>Note</strong>: This protocol is identical to the Kademlia protocol of the libp2p library.</p>
 </blockquote>
@@ -484,7 +505,8 @@ TODO libp2p handshake</p>
 <li>A SCALE-compact-encoded integer indicating the number of transactions in the message.</li>
 <li>Zero or more transactions.</li>
 </ul>
-<p>Implementers are encouraged to send only one transaction per notification.</p>
+<p>Implementers are encouraged to send only one transaction per notification.
+TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished</p>
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
 <h3 id="validation-v1"><a class="header" href="#validation-v1">Validation v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/validation/1</code></p>
@@ -536,7 +558,7 @@ message Identify {
 </ul>
 <p>## Transactions pool</p>
 <p>A <strong>validator</strong> must .</p>
-<h2 id="inherents"><a class="header" href="#inherents">Inherents</a></h2>
+<h2 id="inherents-1"><a class="header" href="#inherents-1">Inherents</a></h2>
 <ul>
 <li>para  https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429</li>
 <li>timestamp</li>

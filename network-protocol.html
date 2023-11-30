@@ -156,7 +156,7 @@
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/kad</code></p>
 <p>Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.</p>
 <p>An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.</p>
-<p>Implementers should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
+<p>The requesting side should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
 <blockquote>
 <p><strong>Note</strong>: This protocol is identical to the Kademlia protocol of the libp2p library.</p>
 </blockquote>
@@ -190,7 +190,8 @@
 <li>A SCALE-compact-encoded integer indicating the number of transactions in the message.</li>
 <li>Zero or more transactions.</li>
 </ul>
-<p>Implementers are encouraged to send only one transaction per notification.</p>
+<p>Implementers are encouraged to send only one transaction per notification.
+TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished</p>
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
 <h3 id="validation-v1"><a class="header" href="#validation-v1">Validation v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/validation/1</code></p>
