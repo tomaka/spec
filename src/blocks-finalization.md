@@ -19,13 +19,19 @@ A *block header* is **finalizable** if:
 
 Given a set of prevote *block headers*, a set of precommit *block headers*, and a *number of validators*:
 
+### Threshold
+
 The **threshold** is defined as `number of validators * 2 / 3 + 1`.
+
+### Prevotes ghost
 
 The **prevotes ghost** is defined as the highest block header in the prevotes that has a supermajority of the threshold.
 If the number of prevote *block headers* is too small, the prevotes ghost is undefined.
 TODO explain better
 
 > **Note**: As more block headers are added, the prevotes ghost can only ever move to higher blocks.
+
+### Estimate
 
 The **estimate** is defined as the block inferior or equal to the *prevotes ghost* that can potentially achieve a supermajority of the threshold.
 TODO: define more formally
@@ -34,10 +40,14 @@ TODO: define more formally
 
 > **Note**: As more precommit block headers are added to the set, the estimate can only ever move to lower blocks. As more prevote block headers are added to the set, the estimate can only ever move to higher blocks.
 
+### Completable
+
 A round is **completable** if either:
 
 - The *estimate* is strictly inferior to the *prevotes ghost*.
 - It becomes impossible for the *estimate* to become strictly superior to the *prevotes ghost*.
+
+### Finality update
 
 The **updated finalized block** is defined as:
 
