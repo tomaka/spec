@@ -117,6 +117,38 @@ TODO: for protocols below, see config at https://github.com/paritytech/polkadot-
 
 ### Block announces
 
+The format of the handshake is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Role | Role | 1 |
+| Best block number | Little endian unsigned integer | 4 TODO or 8 |
+| Best block hash | Bytes | 32 |
+| Genesis block hash | Bytes | 32 |
+
+> **Note**: The genesis block hash field is a redundant information.  TODO write an RFC about that
+
+Where `Role` is one of:
+
+- `0x1`: Full node capabilities.
+- `0x2`: Light client capabilities.
+- `0x4`: Authorities capabilities.
+
+TODO explain Role and consider renaming through an RFC
+
+The format of a notification is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Header | Block header | (variable) |
+| Is new best | Boolean (`true` if non-zero value) | 1 |
+
+TODO: missing a field
+
+An implementation should only send a block announce notification if it would be capable of later answering a *Sync* protocol request concerning this block.
+
+An implementation must not send a block annouce notification concerning a block header that hasn't been [*validated*](./blocks-verification.md).
+
 ### Transactions
 
 The *transactions* notifications substream should be opened only after a *block announces* notifications substream has been opened.
@@ -141,7 +173,15 @@ When it receives a notification, an implementation should add the transaction to
 
 ### Grandpa
 
-The format of a notification one of the following:
+The format of the handshake is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Role | Role | 1 |
+
+> **Note**: `Role` is defined in the *Block announces* section.
+
+The format of a notification is one of the following:
 
 #### Neighbor packet
 
