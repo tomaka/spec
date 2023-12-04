@@ -143,40 +143,82 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="networking-protocols"><a class="header" href="#networking-protocols">Networking protocols</a></h1>
+<p>After an encrypted multiplexed connection is open between two peers, a <strong>substream</strong> can be opened on the connection through the following steps:</p>
+<ul>
+<li>One side (called &quot;the initiator&quot;) opens a substream using the underlying multiplexing protocol.</li>
+<li>The initiator of the substream then starts a <strong>multistream-select</strong> negotiation, as described in <a href="./network-transport.html">the transport protocol</a> section. The name of the protocol being negotiated must be one of the protocol names found later down this section.</li>
+<li>Once the <strong>multistream-select</strong> negotiation is finished, the rest of the steps depend on the protocol that has been negotiated.</li>
+</ul>
+<p>An implementation should reject substreams (using the substream rejection mechanism of the underlying multiplexing protocol) if too many substreams are already opened.</p>
+<p>In the protocol names below, the string <code>&lt;genesis-hash-and-fork-id&gt;</code> should be replaced with the <strong>lower-case-hexadecimal-encoded 32 bytes hash of the genesis block of the chain</strong>.</p>
+<blockquote>
+<p><strong>Example</strong>: For the Polkadot network, this string is <code>91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3</code>. The &quot;sync&quot; protocol name is thus <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/sync/sync/2</code>.</p>
+</blockquote>
 <h2 id="request-response-protocols"><a class="header" href="#request-response-protocols">Request-response protocols</a></h2>
+<p>This sub-section contains a list of <strong>request-response protocols</strong>.</p>
+<p>A request-response protocol works as follows:</p>
+<ul>
+<li>After the <strong>multistream-select</strong> negotiation is finished, the initiator of the substream sends a LEB-128-encoded unsigned integer representing the size in bytes of the request.</li>
+<li>The initiator of the substream then sends the request. The format of the request depends on the protocol that has been negotiated.</li>
+<li>Then, either:
+<ul>
+<li>The other peer sends a LEB-128-encoded unsigned integer representing the size in bytes of the response, then sends the response. The format of the response depends on the protocol that has been negotiated.</li>
+<li>Or the other peer closes its writing side, indicating that it refuses the answer the request.</li>
+</ul>
+</li>
+<li>The initiator and the other peer close their writing side. TODO: explain that it can be done in parallel, or draw a diagram or something</li>
+<li>The substream is closed after the two peers have closed their writing side.</li>
+</ul>
+<p>No reason is provided to the requester when the responder refuses to answer the request.</p>
 <h3 id="sync"><a class="header" href="#sync">Sync</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/sync/sync/2</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/sync/sync/2</code></p>
 <h3 id="warp-sync"><a class="header" href="#warp-sync">Warp sync</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/sync/warp</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/sync/warp</code></p>
+<p>The <strong>request</strong> is as follows:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Starting block hash</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<p>The <strong>response</strong> is as follows:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Number of fragments</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Fragment</td><td>Fragment</td><td>(variable)</td></tr>
+<tr><td>Is finished</td><td>Boolean (<code>true</code> is any non-zero value)</td><td>1</td></tr>
+</tbody></table>
+<p>Where a <strong>fragment</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Header</td><td>Block header</td><td>(variable)</td></tr>
+<tr><td>Justification</td><td>Justification</td><td>(variable)</td></tr>
+</tbody></table>
+<p>TODO: what happens if block hash unknown</p>
 <h3 id="state"><a class="header" href="#state">State</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/state/2</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/state/2</code></p>
 <h3 id="light"><a class="header" href="#light">Light</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/light/2</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/light/2</code></p>
 <h3 id="kademlia"><a class="header" href="#kademlia">Kademlia</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/kad</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/kad</code></p>
 <p>Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.</p>
 <p>An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.</p>
 <p>The requesting side should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
 <blockquote>
-<p><strong>Note</strong>: This protocol is identical to the Kademlia protocol of the libp2p library.</p>
+<p><strong>Note</strong>: This protocol is identical to the Kademlia protocol of the libp2p library, apart from the protocol name which differs.</p>
 </blockquote>
 <p>TODO: for protocols below, see config at https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/request_response/mod.rs#L192</p>
 <h3 id="chunk-fetching"><a class="header" href="#chunk-fetching">Chunk fetching</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_chunk/1</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_chunk/1</code></p>
 <h3 id="collation-fetching-v1"><a class="header" href="#collation-fetching-v1">Collation fetching v1</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_collation/1</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_collation/1</code></p>
 <h3 id="collation-fetching-v2"><a class="header" href="#collation-fetching-v2">Collation fetching v2</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_collation/2</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_collation/2</code></p>
 <h3 id="pov-fetching"><a class="header" href="#pov-fetching">PoV fetching</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_pov/1</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_pov/1</code></p>
 <h3 id="available-data-fetching"><a class="header" href="#available-data-fetching">Available data fetching</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_available_data/1</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_available_data/1</code></p>
 <h3 id="statement-fetching"><a class="header" href="#statement-fetching">Statement fetching</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_statement/1</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_statement/1</code></p>
 <h3 id="dispute-sending"><a class="header" href="#dispute-sending">Dispute sending</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/send_dispute/1</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/send_dispute/1</code></p>
 <h3 id="attested-candidate-request"><a class="header" href="#attested-candidate-request">Attested candidate request</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/req_attested_candidate/2</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_attested_candidate/2</code></p>
 <h2 id="notification-protocols"><a class="header" href="#notification-protocols">Notification protocols</a></h2>
 <h3 id="block-announces"><a class="header" href="#block-announces">Block announces</a></h3>
 <h3 id="transactions"><a class="header" href="#transactions">Transactions</a></h3>
@@ -188,20 +230,20 @@
 <p>The format of a notification is:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>Number of transactions</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>Transactions (zero or more)</td><td>Bytes</td><td>(variable)</td></tr>
+<tr><td>(repeated) Transaction</td><td>Bytes</td><td>(variable)</td></tr>
 </tbody></table>
 <p>TODO: transactions aren't decodable, thus this table is meh, would be fixed by https://github.com/polkadot-fellows/RFCs/pull/56</p>
 <p>Implementers are encouraged to send only one transaction per notification.
 TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished</p>
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
 <h3 id="validation-v1"><a class="header" href="#validation-v1">Validation v1</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/validation/1</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/validation/1</code></p>
 <h3 id="validation-v2"><a class="header" href="#validation-v2">Validation v2</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/validation/2</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/validation/2</code></p>
 <h3 id="collation-v1"><a class="header" href="#collation-v1">Collation v1</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/collation/1</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/collation/1</code></p>
 <h3 id="collation-v2"><a class="header" href="#collation-v2">Collation v2</a></h3>
-<p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/collation/2</code></p>
+<p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/collation/2</code></p>
 <p>TODO: see https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/node/network/protocol/src
 https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/peer_set.rs#L283</p>
 <h2 id="other"><a class="header" href="#other">Other</a></h2>
@@ -210,6 +252,7 @@ https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/pro
 <blockquote>
 <p><strong>Note</strong>: This protocol is identical to the ping protocol of the libp2p library.</p>
 </blockquote>
+<p>TODO: finish</p>
 <h3 id="identify"><a class="header" href="#identify">Identify</a></h3>
 <p><strong>Protocol name</strong>: <code>/ipfs/id/1.0.0</code></p>
 <blockquote>
