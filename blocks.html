@@ -150,6 +150,7 @@
 <li>An ordered list of transactions TODO or is it extrinsics called the <em>body</em> of the block.</li>
 <li>A <em>state</em>, as described in <a href="state.html">the State</a> section.</li>
 </ul>
+<p>TODO: this section is weird</p>
 <h2 id="block-header"><a class="header" href="#block-header">Block header</a></h2>
 <p>A <em>block header</em> is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
@@ -167,8 +168,34 @@
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>(constant)</td><td>0x4</td><td>1</td></tr>
 <tr><td>(constant)</td><td>ASCII string <code>aura</code></td><td>4</td></tr>
+<tr><td>(constant)</td><td>0x1</td><td>1</td></tr>
 <tr><td>Number of authorities</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
 <tr><td>Authorities (zero or more)</td><td>Bytes</td><td>(32 times <code>Number of authorities</code>)</td></tr>
+</tbody></table>
+<h4 id="aura-consensus-authority-disabled"><a class="header" href="#aura-consensus-authority-disabled">Aura consensus authority disabled</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x4</td><td>1</td></tr>
+<tr><td>(constant)</td><td>ASCII string <code>aura</code></td><td>4</td></tr>
+<tr><td>(constant)</td><td>0x2</td><td>1</td></tr>
+<tr><td>Authority index</td><td>Little endian unsigned integer</td><td>4</td></tr>
+</tbody></table>
+<h4 id="aura-seal"><a class="header" href="#aura-seal">Aura seal</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x5</td><td>1</td></tr>
+<tr><td>(constant)</td><td>ASCII string <code>aura</code></td><td>4</td></tr>
+<tr><td>Signature</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<h4 id="aura-slot-number"><a class="header" href="#aura-slot-number">Aura slot number</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x6</td><td>1</td></tr>
+<tr><td>(constant)</td><td>ASCII string <code>aura</code></td><td>4</td></tr>
+<tr><td>Slot number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+</tbody></table>
+<h4 id="babe-seal"><a class="header" href="#babe-seal">Babe seal</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x5</td><td>1</td></tr>
+<tr><td>(constant)</td><td>ASCII string <code>BABE</code></td><td>4</td></tr>
+<tr><td>Signature</td><td>Bytes</td><td>32</td></tr>
 </tbody></table>
 <h4 id="runtime-environment-update"><a class="header" href="#runtime-environment-update">Runtime environment update</a></h4>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
