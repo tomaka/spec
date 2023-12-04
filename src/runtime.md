@@ -27,6 +27,8 @@ The **runtime WebAssembly** is allowed to import any function, whatever their si
 
 Given a *runtime WebAssembly*, a *number of heap pages*, a [*state*](state.md), a *runtime entry point*, an *offchain functions enabled* boolean, and some input data, the host can **do a runtime call**.
 
+TODO: offchain functions and keystore functions are different extensions I believe? it's unclear what is enabled/disabled together and what isn't
+
 Doing a runtime call consists in the following step:
 
 - Verify that the *runtime entry point* is a function exported by the *runtime WebAssembly*, and whose signature is `(func $runtime_entry_point (param $data i32) (param $len i32) (result i64))`.
