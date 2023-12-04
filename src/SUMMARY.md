@@ -5,6 +5,7 @@
 - [Blocks](blocks.md)
   - [Blocks verification](blocks-verification.md)
   - [Blocks authoring](blocks-authoring.md)
+  - [Blocks finalization](blocks-finalization.md)
 - [Transactions](transactions.md)
 - [Parachains](parachains.md)
 - [Networking](network.md)
