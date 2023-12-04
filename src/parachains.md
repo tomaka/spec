@@ -2,7 +2,7 @@
 
 ## Collation
 
-A **collation** is a collection of bytes defined as the concatenation of:
+A **collation** is defined as:
 
 -
 -

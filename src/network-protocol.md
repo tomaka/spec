@@ -78,8 +78,12 @@ The *handshake* of this substream is an empty set of bytes.
 
 The format of a notification is:
 
-- A SCALE-compact-encoded integer indicating the number of transactions in the message.
-- Zero or more transactions.
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Number of transactions | SCALE-compact-encoded unsigned integer | (variable) |
+| Transactions (zero or more) | Bytes | (variable) |
+
+TODO: transactions aren't decodable, thus this table is meh, would be fixed by https://github.com/polkadot-fellows/RFCs/pull/56
 
 Implementers are encouraged to send only one transaction per notification.
 TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished

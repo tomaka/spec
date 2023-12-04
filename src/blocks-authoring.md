@@ -55,7 +55,7 @@ Given a set of blocks, an ed25519 or an sr25519 private key, and a list of trans
 - Find the *best block* amongst that set using the **better block** algorithm described above.
 - Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and private key combination.
 - Wait until one of these three slots, whichever comes first. TODO: explain how to convert to timestamp
-- Do a runtime call for `Core_initialize_block` using the state of the *best block* (see above), passing as parameter an *unsigned block header* with the following field values:
+- Do a runtime call for `Core_initialize_block` using the state of the *best block* (see above), passing as parameter a *block header* with the following field values:
   - *Parent_hash* must be equal to the hash of the *best block*.
   - *Block number* must be equal to the *block number* of the *best block* plus one.
   - *State root* must be all zeroes.
@@ -65,19 +65,23 @@ Given a set of blocks, an ed25519 or an sr25519 private key, and a list of trans
 - For each extrinsic returned `BlockBuilder_inherent_extrinsics`, call `BlockBuilder_apply_extrinsic`. TODO detail return value
 - For each transaction, call `BlockBuilder_apply_extrinsic`. TODO details and indicate for how long
 - Call `BlockBuilder_finalize_block`, with an empty input.
-- Create a digital signature of the *unsigned block header* using the ed25519 or sr25519 private key.
-- Add to the digest items of the *unsigned block header* either an *Aura seal* or a *Babe seal* (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature, in order to obtain a *block header*.
+- Create a digital signature of the *block header* using the ed25519 or sr25519 private key.
+- Add to the digest items of the *block header* either an *Aura seal* or a *Babe seal* (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature. Add one to the *number of digest items* of the *block header*.
 
 If at any point in the future the client authors a block again using the same private key, it **must** include in the set of blocks the newly-authored block.
 This constraint is necessary in order to guarantee that no two blocks using the same key are authored using the same slot.
 
 ### Inherents
 
-The **inherents** are defined as the concatenation of the following bytes:
+The **inherents** are defined as:
 
-- The SCALE-compact encoding of the number `2` (indicating the number of inherents).
-- The ASCII string `timstap0`.
-- TODO len
-- A little-endian 64bits unsigned integer containing the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x2 | 1 |
+| (constant) | ASCII string `timstap0` | 8 |
+TODO: len
+| Timestamp | Little-endian unsigned integer | 8 |
+
+The `Timestamp` field must contain the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.
 
 TODO parachain inherents

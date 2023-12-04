@@ -9,25 +9,45 @@ A **block** consists in the following properties:
 
 ## Block header
 
-A *block header* is a collection of bytes defined as the concatenation of:
+A *block header* is defined as:
 
-- An *unsigned block header* (see below).
-- A 32 bytes *signature*.
-
-An *unsigned block header* is a collection of bytes defined as the concatenation of:
-
-- *Parent hash*: 32 bytes.
-- *Block number*: Little-endian 32 bits unsigned integer.
-- *State root*: 32 bytes.
-- *Extrinsics root*: 32 bytes.
-- *Number of digest items*: SCALE-compact-encoded number equal to the number of digest items.
-- *Digest items*: Zero or more digest items. See below.
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Parent hash | Bytes | 32 |
+| Block number | Little endian unsigned integer | 4 |
+| State root | Bytes | 32 |
+| Extrinsics root | Bytes | 32 |
+| Number of digest items | SCALE-compact-encoded unsigned integer | (variable) |
+| Digest items (zero or more) | Digest item | (variable) |
 
 ### Digest item
 
 A digest item is defined as one of:
 
-TODO: 
+TODO: finish here
+
+#### Aura consensus authorities change
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x4 | 1 |
+| (constant) | ASCII string `aura` | 4 |
+| Number of authorities | SCALE-compact-encoded unsigned integer | (variable) |
+| Authorities (zero or more) | Bytes | (32 times `Number of authorities`) |
+
+#### Runtime environment update
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x8 | 1 |
+
+#### Other
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x0 | 1 |
+| Data length | SCALE-compact-encoded unsigned integer | (variable) |
+| Data | Bytes | (indicated by `Data length`) |
 
 ## Genesis block header
 

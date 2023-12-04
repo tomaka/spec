@@ -6,7 +6,12 @@ TODO: Noise + Yamux
 
 ## PeerId
 
-A **PeerId** is defined as the concatenation of the bytes `0x002408011220` with a 32 bytes [ed25519](https://www.rfc-editor.org/rfc/rfc8032.txt) public key.
+A **PeerId** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | Bytes 0x002408011220 | 6 |
+| [Ed25519](https://www.rfc-editor.org/rfc/rfc8032.txt) public key | Bytes | 32 |
 
 > **Note**: A **PeerId** used to be defined as a multihash encoding of a protobuf struct containing another protobuf struct containing the public key. In order to prevent the same public key from being representable as multiple different **PeerId**s, all implementations must encode this in a single consistent way that is more easily defined as specific bytes.
 
