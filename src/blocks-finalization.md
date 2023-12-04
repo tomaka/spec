@@ -15,31 +15,30 @@ A *block header* is **finalizable** if:
 - Its parent block is *finalized* or *finalizable*.
 - TODO: parachain stuff
 
-## Ghost
+## Grandpa rounds
 
-Given a set of *block headers* and a *threshold*, the **ghost** of this set is the highest block that has a supermajority of `threshold * 2 / 3 + 1`.
-If the number of *block headers* is too small, the ghost is undefined.
+Given a set of prevote *block headers*, a set of precommit *block headers*, and a *number of validators*:
 
-> **Note**: As more block headers are added, the ghost can only ever move to higher blocks.
+The **threshold** is defined as `number of validators * 2 / 3 + 1`.
 
+The **prevotes ghost** is defined as the highest block header in the prevotes that has a supermajority of the threshold.
+If the number of prevote *block headers* is too small, the prevotes ghost is undefined.
 TODO explain better
 
-## Grandpa round estimate
+> **Note**: As more block headers are added, the prevotes ghost can only ever move to higher blocks.
 
-Given a set of prevote *block headers*, a set of precommit *block headers* and a *threshold*, the **estimate** is the block inferior or equal to `ghost(prevotes)` that can potentially achieve a supermajority of `threshold * 2 / 3 + 1`.
-
+The **estimate** is defined as the block inferior or equal to the *prevotes ghost* that can potentially achieve a supermajority of the threshold.
 TODO: define more formally
+
+> **Note**: More informally, the estimate is the highest block that could still potentially achieve a supermajority.
 
 > **Note**: As more precommit block headers are added to the set, the estimate can only ever move to lower blocks. As more prevote block headers are added to the set, the estimate can only ever move to higher blocks.
 
-> **Note**: More informally, the estimate is the highest block that could still achieve a supermajority.
+A round is **completable** if either:
 
-## Grandpa round
+- The *estimate* is strictly inferior to the *prevotes ghost*.
+- It becomes impossible for the *estimate* to become strictly superior to the *prevotes ghost*.
 
-Given a set of *block headers* and a threshold, the **estimate** is the highest block that can achieve a supermajority.
+The **updated finalized block** is defined as:
 
-Given a set of prevote *block headers*, a set of precommit *block headers*, and a *threshold*, a round is completable if either:
-
-- The **estimate** is strictly inferior to the ghost of the prevotes.
-- It becomes impossible for the **estimate** to become strictly superior to the ghost of the prevotes.
-
+- 
