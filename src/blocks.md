@@ -7,6 +7,8 @@ A **block** consists in the following properties:
 - An ordered list of transactions TODO or is it extrinsics called the *body* of the block.
 - A *state*, as described in [the State](state.html) section.
 
+TODO: this section is weird
+
 ## Block header
 
 A *block header* is defined as:
@@ -32,8 +34,42 @@ TODO: finish here
 | ------------------ | --------- | -------------- |
 | (constant) | 0x4 | 1 |
 | (constant) | ASCII string `aura` | 4 |
+| (constant) | 0x1 | 1 |
 | Number of authorities | SCALE-compact-encoded unsigned integer | (variable) |
 | Authorities (zero or more) | Bytes | (32 times `Number of authorities`) |
+
+#### Aura consensus authority disabled
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x4 | 1 |
+| (constant) | ASCII string `aura` | 4 |
+| (constant) | 0x2 | 1 |
+| Authority index | Little endian unsigned integer | 4 |
+
+#### Aura seal
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x5 | 1 |
+| (constant) | ASCII string `aura` | 4 |
+| Signature | Bytes | 32 |
+
+#### Aura slot number
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x6 | 1 |
+| (constant) | ASCII string `aura` | 4 |
+| Slot number | Little endian unsigned integer | 8 |
+
+#### Babe seal
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x5 | 1 |
+| (constant) | ASCII string `BABE` | 4 |
+| Signature | Bytes | 32 |
 
 #### Runtime environment update
 
