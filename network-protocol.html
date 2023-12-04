@@ -186,10 +186,11 @@
 <p><strong>Note</strong>: The handshake phase is identical to the one of the other notification protocols and consists in sending a <code>0</code> byte in order to indicate that the handshake payload is empty.</p>
 </blockquote>
 <p>The format of a notification is:</p>
-<ul>
-<li>A SCALE-compact-encoded integer indicating the number of transactions in the message.</li>
-<li>Zero or more transactions.</li>
-</ul>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Number of transactions</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Transactions (zero or more)</td><td>Bytes</td><td>(variable)</td></tr>
+</tbody></table>
+<p>TODO: transactions aren't decodable, thus this table is meh, would be fixed by https://github.com/polkadot-fellows/RFCs/pull/56</p>
 <p>Implementers are encouraged to send only one transaction per notification.
 TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished</p>
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>

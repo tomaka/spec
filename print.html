@@ -265,23 +265,35 @@ The implementation then allocates a 32 bytes buffer using the same mechanism as 
 <li>A <em>state</em>, as described in <a href="state.html">the State</a> section.</li>
 </ul>
 <h2 id="block-header"><a class="header" href="#block-header">Block header</a></h2>
-<p>A <em>block header</em> is a collection of bytes defined as the concatenation of:</p>
-<ul>
-<li>An <em>unsigned block header</em> (see below).</li>
-<li>A 32 bytes <em>signature</em>.</li>
-</ul>
-<p>An <em>unsigned block header</em> is a collection of bytes defined as the concatenation of:</p>
-<ul>
-<li><em>Parent hash</em>: 32 bytes.</li>
-<li><em>Block number</em>: Little-endian 32 bits unsigned integer.</li>
-<li><em>State root</em>: 32 bytes.</li>
-<li><em>Extrinsics root</em>: 32 bytes.</li>
-<li><em>Number of digest items</em>: SCALE-compact-encoded number equal to the number of digest items.</li>
-<li><em>Digest items</em>: Zero or more digest items. See below.</li>
-</ul>
+<p>A <em>block header</em> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Parent hash</td><td>Bytes</td><td> 32</td></tr>
+<tr><td>Block number</td><td>Little endian unsigned integer</td><td>4</td></tr>
+<tr><td>State root</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Extrinsics root</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Number of digest items</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Digest items (zero or more)</td><td>Digest item</td><td>(variable)</td></tr>
+</tbody></table>
 <h3 id="digest-item"><a class="header" href="#digest-item">Digest item</a></h3>
 <p>A digest item is defined as one of:</p>
-<p>TODO: </p>
+<p>TODO: finish here</p>
+<h4 id="aura-consensus-authorities-change"><a class="header" href="#aura-consensus-authorities-change">Aura consensus authorities change</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x4</td><td>1</td></tr>
+<tr><td>(constant)</td><td>ASCII string <code>aura</code></td><td>4</td></tr>
+<tr><td>Number of authorities</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Authorities (zero or more)</td><td>Bytes</td><td>(32 times <code>Number of authorities</code>)</td></tr>
+</tbody></table>
+<h4 id="runtime-environment-update"><a class="header" href="#runtime-environment-update">Runtime environment update</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x8</td><td>1</td></tr>
+</tbody></table>
+<h4 id="other"><a class="header" href="#other">Other</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
+<tr><td>Data length</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Data</td><td>Bytes</td><td>(indicated by <code>Data length</code>)</td></tr>
+</tbody></table>
 <h2 id="genesis-block-header"><a class="header" href="#genesis-block-header">Genesis block header</a></h2>
 <p>A <strong>genesis block header</strong> is a <strong>block header</strong> that respects the following constraints:</p>
 <ul>
@@ -384,7 +396,7 @@ TODO</li>
 <li>Find the <em>best block</em> amongst that set using the <strong>better block</strong> algorithm described above.</li>
 <li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and private key combination.</li>
 <li>Wait until one of these three slots, whichever comes first. TODO: explain how to convert to timestamp</li>
-<li>Do a runtime call for <code>Core_initialize_block</code> using the state of the <em>best block</em> (see above), passing as parameter an <em>unsigned block header</em> with the following field values:
+<li>Do a runtime call for <code>Core_initialize_block</code> using the state of the <em>best block</em> (see above), passing as parameter a <em>block header</em> with the following field values:
 <ul>
 <li><em>Parent_hash</em> must be equal to the hash of the <em>best block</em>.</li>
 <li><em>Block number</em> must be equal to the <em>block number</em> of the <em>best block</em> plus one.</li>
@@ -397,23 +409,24 @@ TODO</li>
 <li>For each extrinsic returned <code>BlockBuilder_inherent_extrinsics</code>, call <code>BlockBuilder_apply_extrinsic</code>. TODO detail return value</li>
 <li>For each transaction, call <code>BlockBuilder_apply_extrinsic</code>. TODO details and indicate for how long</li>
 <li>Call <code>BlockBuilder_finalize_block</code>, with an empty input.</li>
-<li>Create a digital signature of the <em>unsigned block header</em> using the ed25519 or sr25519 private key.</li>
-<li>Add to the digest items of the <em>unsigned block header</em> either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature, in order to obtain a <em>block header</em>.</li>
+<li>Create a digital signature of the <em>block header</em> using the ed25519 or sr25519 private key.</li>
+<li>Add to the digest items of the <em>block header</em> either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature. Add one to the <em>number of digest items</em> of the <em>block header</em>.</li>
 </ul>
 <p>If at any point in the future the client authors a block again using the same private key, it <strong>must</strong> include in the set of blocks the newly-authored block.
 This constraint is necessary in order to guarantee that no two blocks using the same key are authored using the same slot.</p>
 <h3 id="inherents"><a class="header" href="#inherents">Inherents</a></h3>
-<p>The <strong>inherents</strong> are defined as the concatenation of the following bytes:</p>
-<ul>
-<li>The SCALE-compact encoding of the number <code>2</code> (indicating the number of inherents).</li>
-<li>The ASCII string <code>timstap0</code>.</li>
-<li>TODO len</li>
-<li>A little-endian 64bits unsigned integer containing the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.</li>
-</ul>
+<p>The <strong>inherents</strong> are defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x2</td><td>1</td></tr>
+<tr><td>(constant)</td><td>ASCII string <code>timstap0</code></td><td>8</td></tr>
+<tr><td>TODO: len</td><td></td><td></td></tr>
+<tr><td>Timestamp</td><td>Little-endian unsigned integer</td><td>8</td></tr>
+</tbody></table>
+<p>The <code>Timestamp</code> field must contain the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.</p>
 <p>TODO parachain inherents</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="parachains"><a class="header" href="#parachains">Parachains</a></h1>
 <h2 id="collation"><a class="header" href="#collation">Collation</a></h2>
-<p>A <strong>collation</strong> is a collection of bytes defined as the concatenation of:</p>
+<p>A <strong>collation</strong> is defined as:</p>
 <ul>
 <li></li>
 <li></li>
@@ -426,7 +439,11 @@ This constraint is necessary in order to guarantee that no two blocks using the 
 <p>A host SHOULD listen for incoming TCP connections on one or more TCP ports reachable from the Internet.</p>
 <p>TODO: Noise + Yamux</p>
 <h2 id="peerid"><a class="header" href="#peerid">PeerId</a></h2>
-<p>A <strong>PeerId</strong> is defined as the concatenation of the bytes <code>0x002408011220</code> with a 32 bytes <a href="https://www.rfc-editor.org/rfc/rfc8032.txt">ed25519</a> public key.</p>
+<p>A <strong>PeerId</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>Bytes 0x002408011220</td><td>6</td></tr>
+<tr><td><a href="https://www.rfc-editor.org/rfc/rfc8032.txt">Ed25519</a> public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
 <blockquote>
 <p><strong>Note</strong>: A <strong>PeerId</strong> used to be defined as a multihash encoding of a protobuf struct containing another protobuf struct containing the public key. In order to prevent the same public key from being representable as multiple different <strong>PeerId</strong>s, all implementations must encode this in a single consistent way that is more easily defined as specific bytes.</p>
 </blockquote>
@@ -501,10 +518,11 @@ TODO libp2p handshake</p>
 <p><strong>Note</strong>: The handshake phase is identical to the one of the other notification protocols and consists in sending a <code>0</code> byte in order to indicate that the handshake payload is empty.</p>
 </blockquote>
 <p>The format of a notification is:</p>
-<ul>
-<li>A SCALE-compact-encoded integer indicating the number of transactions in the message.</li>
-<li>Zero or more transactions.</li>
-</ul>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Number of transactions</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Transactions (zero or more)</td><td>Bytes</td><td>(variable)</td></tr>
+</tbody></table>
+<p>TODO: transactions aren't decodable, thus this table is meh, would be fixed by https://github.com/polkadot-fellows/RFCs/pull/56</p>
 <p>Implementers are encouraged to send only one transaction per notification.
 TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished</p>
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
@@ -518,7 +536,7 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <p><strong>Protocol name</strong>: <code>/91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3/collation/2</code></p>
 <p>TODO: see https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/node/network/protocol/src
 https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/peer_set.rs#L283</p>
-<h2 id="other"><a class="header" href="#other">Other</a></h2>
+<h2 id="other-1"><a class="header" href="#other-1">Other</a></h2>
 <h3 id="ping"><a class="header" href="#ping">Ping</a></h3>
 <p><strong>Protocol name</strong>: <code>/ipfs/ping/1.0.0</code></p>
 <blockquote>

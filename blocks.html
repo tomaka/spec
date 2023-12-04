@@ -151,23 +151,35 @@
 <li>A <em>state</em>, as described in <a href="state.html">the State</a> section.</li>
 </ul>
 <h2 id="block-header"><a class="header" href="#block-header">Block header</a></h2>
-<p>A <em>block header</em> is a collection of bytes defined as the concatenation of:</p>
-<ul>
-<li>An <em>unsigned block header</em> (see below).</li>
-<li>A 32 bytes <em>signature</em>.</li>
-</ul>
-<p>An <em>unsigned block header</em> is a collection of bytes defined as the concatenation of:</p>
-<ul>
-<li><em>Parent hash</em>: 32 bytes.</li>
-<li><em>Block number</em>: Little-endian 32 bits unsigned integer.</li>
-<li><em>State root</em>: 32 bytes.</li>
-<li><em>Extrinsics root</em>: 32 bytes.</li>
-<li><em>Number of digest items</em>: SCALE-compact-encoded number equal to the number of digest items.</li>
-<li><em>Digest items</em>: Zero or more digest items. See below.</li>
-</ul>
+<p>A <em>block header</em> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Parent hash</td><td>Bytes</td><td> 32</td></tr>
+<tr><td>Block number</td><td>Little endian unsigned integer</td><td>4</td></tr>
+<tr><td>State root</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Extrinsics root</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Number of digest items</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Digest items (zero or more)</td><td>Digest item</td><td>(variable)</td></tr>
+</tbody></table>
 <h3 id="digest-item"><a class="header" href="#digest-item">Digest item</a></h3>
 <p>A digest item is defined as one of:</p>
-<p>TODO: </p>
+<p>TODO: finish here</p>
+<h4 id="aura-consensus-authorities-change"><a class="header" href="#aura-consensus-authorities-change">Aura consensus authorities change</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x4</td><td>1</td></tr>
+<tr><td>(constant)</td><td>ASCII string <code>aura</code></td><td>4</td></tr>
+<tr><td>Number of authorities</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Authorities (zero or more)</td><td>Bytes</td><td>(32 times <code>Number of authorities</code>)</td></tr>
+</tbody></table>
+<h4 id="runtime-environment-update"><a class="header" href="#runtime-environment-update">Runtime environment update</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x8</td><td>1</td></tr>
+</tbody></table>
+<h4 id="other"><a class="header" href="#other">Other</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
+<tr><td>Data length</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Data</td><td>Bytes</td><td>(indicated by <code>Data length</code>)</td></tr>
+</tbody></table>
 <h2 id="genesis-block-header"><a class="header" href="#genesis-block-header">Genesis block header</a></h2>
 <p>A <strong>genesis block header</strong> is a <strong>block header</strong> that respects the following constraints:</p>
 <ul>

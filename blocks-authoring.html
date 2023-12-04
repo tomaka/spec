@@ -196,7 +196,7 @@
 <li>Find the <em>best block</em> amongst that set using the <strong>better block</strong> algorithm described above.</li>
 <li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and private key combination.</li>
 <li>Wait until one of these three slots, whichever comes first. TODO: explain how to convert to timestamp</li>
-<li>Do a runtime call for <code>Core_initialize_block</code> using the state of the <em>best block</em> (see above), passing as parameter an <em>unsigned block header</em> with the following field values:
+<li>Do a runtime call for <code>Core_initialize_block</code> using the state of the <em>best block</em> (see above), passing as parameter a <em>block header</em> with the following field values:
 <ul>
 <li><em>Parent_hash</em> must be equal to the hash of the <em>best block</em>.</li>
 <li><em>Block number</em> must be equal to the <em>block number</em> of the <em>best block</em> plus one.</li>
@@ -209,19 +209,20 @@
 <li>For each extrinsic returned <code>BlockBuilder_inherent_extrinsics</code>, call <code>BlockBuilder_apply_extrinsic</code>. TODO detail return value</li>
 <li>For each transaction, call <code>BlockBuilder_apply_extrinsic</code>. TODO details and indicate for how long</li>
 <li>Call <code>BlockBuilder_finalize_block</code>, with an empty input.</li>
-<li>Create a digital signature of the <em>unsigned block header</em> using the ed25519 or sr25519 private key.</li>
-<li>Add to the digest items of the <em>unsigned block header</em> either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature, in order to obtain a <em>block header</em>.</li>
+<li>Create a digital signature of the <em>block header</em> using the ed25519 or sr25519 private key.</li>
+<li>Add to the digest items of the <em>block header</em> either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature. Add one to the <em>number of digest items</em> of the <em>block header</em>.</li>
 </ul>
 <p>If at any point in the future the client authors a block again using the same private key, it <strong>must</strong> include in the set of blocks the newly-authored block.
 This constraint is necessary in order to guarantee that no two blocks using the same key are authored using the same slot.</p>
 <h3 id="inherents"><a class="header" href="#inherents">Inherents</a></h3>
-<p>The <strong>inherents</strong> are defined as the concatenation of the following bytes:</p>
-<ul>
-<li>The SCALE-compact encoding of the number <code>2</code> (indicating the number of inherents).</li>
-<li>The ASCII string <code>timstap0</code>.</li>
-<li>TODO len</li>
-<li>A little-endian 64bits unsigned integer containing the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.</li>
-</ul>
+<p>The <strong>inherents</strong> are defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x2</td><td>1</td></tr>
+<tr><td>(constant)</td><td>ASCII string <code>timstap0</code></td><td>8</td></tr>
+<tr><td>TODO: len</td><td></td><td></td></tr>
+<tr><td>Timestamp</td><td>Little-endian unsigned integer</td><td>8</td></tr>
+</tbody></table>
+<p>The <code>Timestamp</code> field must contain the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.</p>
 <p>TODO parachain inherents</p>
 
                     </main>

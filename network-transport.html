@@ -146,7 +146,11 @@
 <p>A host SHOULD listen for incoming TCP connections on one or more TCP ports reachable from the Internet.</p>
 <p>TODO: Noise + Yamux</p>
 <h2 id="peerid"><a class="header" href="#peerid">PeerId</a></h2>
-<p>A <strong>PeerId</strong> is defined as the concatenation of the bytes <code>0x002408011220</code> with a 32 bytes <a href="https://www.rfc-editor.org/rfc/rfc8032.txt">ed25519</a> public key.</p>
+<p>A <strong>PeerId</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>Bytes 0x002408011220</td><td>6</td></tr>
+<tr><td><a href="https://www.rfc-editor.org/rfc/rfc8032.txt">Ed25519</a> public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
 <blockquote>
 <p><strong>Note</strong>: A <strong>PeerId</strong> used to be defined as a multihash encoding of a protobuf struct containing another protobuf struct containing the public key. In order to prevent the same public key from being representable as multiple different <strong>PeerId</strong>s, all implementations must encode this in a single consistent way that is more easily defined as specific bytes.</p>
 </blockquote>
