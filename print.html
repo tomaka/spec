@@ -627,7 +627,7 @@ TODO libp2p handshake</p>
 <tr><td>Is new best</td><td>Boolean (<code>true</code> if non-zero value)</td><td>1</td></tr>
 </tbody></table>
 <p>TODO: missing a field</p>
-<p>An implementation should only send a block announce notification if it would be capable of later answering a <em>Sync</em> protocol request concerning this block.</p>
+<p>An implementation should send a block announce notification only if it would be capable of later answering a <em>Sync</em> protocol request concerning this block.</p>
 <p>An implementation must not send a block annouce notification concerning a block header that hasn't been <a href="./blocks-verification.html"><em>validated</em></a>.</p>
 <h3 id="transactions-1"><a class="header" href="#transactions-1">Transactions</a></h3>
 <p>The <em>transactions</em> notifications substream should be opened only after a <em>block announces</em> notifications substream has been opened.</p>
@@ -679,6 +679,7 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <li><code>0x1</code>: Precommit</li>
 <li><code>0x2</code>: Primary propose</li>
 </ul>
+<p>An implementation should send a vote grandpa notification only if it would be capable of later answering a <em>Sync</em> protocol request concerning the target block.</p>
 <h4 id="catch-up-request"><a class="header" href="#catch-up-request">Catch-up request</a></h4>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>(constant)</td><td>0x3</td><td>1</td></tr>
