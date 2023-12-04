@@ -12,4 +12,4 @@
   - [Validators matrix](network-matrix.md)
   - [Protocols](network-protocol.md)
   - [Kademlia](network-kad.md)
-- [Liveness requirements](liveness-requirements.md)
+- [Requirements](requirements.md)
