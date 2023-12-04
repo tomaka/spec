@@ -153,28 +153,31 @@
 <li>Its parent block is <em>finalized</em> or <em>finalizable</em>.</li>
 <li>TODO: parachain stuff</li>
 </ul>
-<h2 id="ghost"><a class="header" href="#ghost">Ghost</a></h2>
-<p>Given a set of <em>block headers</em> and a <em>threshold</em>, the <strong>ghost</strong> of this set is the highest block that has a supermajority of <code>threshold * 2 / 3 + 1</code>.
-If the number of <em>block headers</em> is too small, the ghost is undefined.</p>
+<h2 id="grandpa-rounds"><a class="header" href="#grandpa-rounds">Grandpa rounds</a></h2>
+<p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em>, and a <em>number of validators</em>:</p>
+<p>The <strong>threshold</strong> is defined as <code>number of validators * 2 / 3 + 1</code>.</p>
+<p>The <strong>prevotes ghost</strong> is defined as the highest block header in the prevotes that has a supermajority of the threshold.
+If the number of prevote <em>block headers</em> is too small, the prevotes ghost is undefined.
+TODO explain better</p>
 <blockquote>
-<p><strong>Note</strong>: As more block headers are added, the ghost can only ever move to higher blocks.</p>
+<p><strong>Note</strong>: As more block headers are added, the prevotes ghost can only ever move to higher blocks.</p>
 </blockquote>
-<p>TODO explain better</p>
-<h2 id="grandpa-round-estimate"><a class="header" href="#grandpa-round-estimate">Grandpa round estimate</a></h2>
-<p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em> and a <em>threshold</em>, the <strong>estimate</strong> is the block inferior or equal to <code>ghost(prevotes)</code> that can potentially achieve a supermajority of <code>threshold * 2 / 3 + 1</code>.</p>
-<p>TODO: define more formally</p>
+<p>The <strong>estimate</strong> is defined as the block inferior or equal to the <em>prevotes ghost</em> that can potentially achieve a supermajority of the threshold.
+TODO: define more formally</p>
+<blockquote>
+<p><strong>Note</strong>: More informally, the estimate is the highest block that could still potentially achieve a supermajority.</p>
+</blockquote>
 <blockquote>
 <p><strong>Note</strong>: As more precommit block headers are added to the set, the estimate can only ever move to lower blocks. As more prevote block headers are added to the set, the estimate can only ever move to higher blocks.</p>
 </blockquote>
-<blockquote>
-<p><strong>Note</strong>: More informally, the estimate is the highest block that could still achieve a supermajority.</p>
-</blockquote>
-<h2 id="grandpa-round"><a class="header" href="#grandpa-round">Grandpa round</a></h2>
-<p>Given a set of <em>block headers</em> and a threshold, the <strong>estimate</strong> is the highest block that can achieve a supermajority.</p>
-<p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em>, and a <em>threshold</em>, a round is completable if either:</p>
+<p>A round is <strong>completable</strong> if either:</p>
 <ul>
-<li>The <strong>estimate</strong> is strictly inferior to the ghost of the prevotes.</li>
-<li>It becomes impossible for the <strong>estimate</strong> to become strictly superior to the ghost of the prevotes.</li>
+<li>The <em>estimate</em> is strictly inferior to the <em>prevotes ghost</em>.</li>
+<li>It becomes impossible for the <em>estimate</em> to become strictly superior to the <em>prevotes ghost</em>.</li>
+</ul>
+<p>The <strong>updated finalized block</strong> is defined as:</p>
+<ul>
+<li></li>
 </ul>
 
                     </main>
