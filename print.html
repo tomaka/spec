@@ -620,6 +620,40 @@ TODO libp2p handshake</p>
 TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished</p>
 <p>When it receives a notification, an implementation should add the transaction to TODO.</p>
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
+<p>The format of a notification one of the following:</p>
+<h4 id="neighbor-packet"><a class="header" href="#neighbor-packet">Neighbor packet</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x2</td><td>1</td></tr>
+<tr><td>(constant)</td><td>0x1</td><td>1</td></tr>
+<tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Commit finalized height</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+</tbody></table>
+<p>TODO commit message</p>
+<h4 id="vote"><a class="header" href="#vote">Vote</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
+<tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Vote type</td><td>Vote type</td><td>1</td></tr>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+<tr><td>Signature</td><td>Bytes</td><td>64</td></tr>
+<tr><td>Authority public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<p>Where <code>Vote type</code> is one of:</p>
+<ul>
+<li><code>0x0</code>: Prevote</li>
+<li><code>0x1</code>: Precommit</li>
+<li><code>0x2</code>: Primary propose</li>
+</ul>
+<h4 id="catch-up-request"><a class="header" href="#catch-up-request">Catch-up request</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x3</td><td>1</td></tr>
+<tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
+</tbody></table>
+<p>TODO: catch-up response</p>
 <h3 id="validation-v1"><a class="header" href="#validation-v1">Validation v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/validation/1</code></p>
 <h3 id="validation-v2"><a class="header" href="#validation-v2">Validation v2</a></h3>
