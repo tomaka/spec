@@ -63,7 +63,7 @@ Given a set of blocks, an ed25519 or an sr25519 private key, and a list of trans
   - One digest item: if the slot is an Aura slot, TODO finish.
 - Call `BlockBuilder_inherent_extrinsics` TODO detail the input  TODO: it's not possible to decode the output without the runtime at the moment
 - For each extrinsic returned `BlockBuilder_inherent_extrinsics`, call `BlockBuilder_apply_extrinsic`. TODO detail return value
-- For each transaction, call `BlockBuilder_apply_extrinsic`. TODO details and indicate for how long
+- For each transaction, call `BlockBuilder_apply_extrinsic`. If this runtime call fails, the block authoring process must continue and the transaction and any transaction that *comes after* must be ignored for the remainder of the block authoring operation. TODO details and indicate for how long
 - Call `BlockBuilder_finalize_block`, with an empty input.
 - Create a digital signature of the *block header* using the ed25519 or sr25519 private key.
 - Add to the digest items of the *block header* either an *Aura seal* or a *Babe seal* (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature. Add one to the *number of digest items* of the *block header*.
@@ -85,3 +85,4 @@ TODO: len
 The `Timestamp` field must contain the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.
 
 TODO parachain inherents
+https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429

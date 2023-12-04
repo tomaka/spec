@@ -137,6 +137,8 @@ TODO: transactions aren't decodable, thus this table is meh, would be fixed by h
 Implementers are encouraged to send only one transaction per notification.
 TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished
 
+When it receives a notification, an implementation should add the transaction to TODO.
+
 ### Grandpa
 
 ### Validation v1
