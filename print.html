@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="requirements.html"><strong aria-hidden="true">6.</strong> Requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li><li class="chapter-item expanded "><a href="blocks-finalization.html"><strong aria-hidden="true">2.3.</strong> Blocks finalization</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="requirements.html"><strong aria-hidden="true">6.</strong> Requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -453,6 +453,40 @@ This constraint is necessary in order to guarantee that no two blocks using the 
 <p>The <code>Timestamp</code> field must contain the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.</p>
 <p>TODO parachain inherents
 https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="blocks-finalization"><a class="header" href="#blocks-finalization">Blocks finalization</a></h1>
+<h2 id="grandpa-validators-set"><a class="header" href="#grandpa-validators-set">Grandpa validators set</a></h2>
+<p>Given a <em>block header</em>, the <strong>Grandpa validators set</strong> can be determined through the following process:</p>
+<p>TODO</p>
+<p>TODO: don't forget to remove from the list disabled validators</p>
+<h2 id="finalizable-block"><a class="header" href="#finalizable-block">Finalizable block</a></h2>
+<p>A <em>block header</em> is <strong>finalizable</strong> if:</p>
+<ul>
+<li>Its parent block is <em>finalized</em> or <em>finalizable</em>.</li>
+<li>TODO: parachain stuff</li>
+</ul>
+<h2 id="ghost"><a class="header" href="#ghost">Ghost</a></h2>
+<p>Given a set of <em>block headers</em> and a <em>threshold</em>, the <strong>ghost</strong> of this set is the highest block that has a supermajority of <code>threshold * 2 / 3 + 1</code>.
+If the number of <em>block headers</em> is too small, the ghost is undefined.</p>
+<blockquote>
+<p><strong>Note</strong>: As more block headers are added, the ghost can only ever move to higher blocks.</p>
+</blockquote>
+<p>TODO explain better</p>
+<h2 id="grandpa-round-estimate"><a class="header" href="#grandpa-round-estimate">Grandpa round estimate</a></h2>
+<p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em> and a <em>threshold</em>, the <strong>estimate</strong> is the block inferior or equal to <code>ghost(prevotes)</code> that can potentially achieve a supermajority of <code>threshold * 2 / 3 + 1</code>.</p>
+<p>TODO: define more formally</p>
+<blockquote>
+<p><strong>Note</strong>: As more precommit block headers are added to the set, the estimate can only ever move to lower blocks. As more prevote block headers are added to the set, the estimate can only ever move to higher blocks.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note</strong>: More informally, the estimate is the highest block that could still achieve a supermajority.</p>
+</blockquote>
+<h2 id="grandpa-round"><a class="header" href="#grandpa-round">Grandpa round</a></h2>
+<p>Given a set of <em>block headers</em> and a threshold, the <strong>estimate</strong> is the highest block that can achieve a supermajority.</p>
+<p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em>, and a <em>threshold</em>, a round is completable if either:</p>
+<ul>
+<li>The <strong>estimate</strong> is strictly inferior to the ghost of the prevotes.</li>
+<li>It becomes impossible for the <strong>estimate</strong> to become strictly superior to the ghost of the prevotes.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transactions"><a class="header" href="#transactions">Transactions</a></h1>
 <p>A <strong>transaction</strong> is defined as an opaque list of bytes.</p>
 <p>An implementation should not try to interpret the format of a transaction.</p>
