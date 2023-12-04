@@ -145,7 +145,7 @@ The format of a notification is defined as:
 
 TODO: missing a field
 
-An implementation should only send a block announce notification if it would be capable of later answering a *Sync* protocol request concerning this block.
+An implementation should send a block announce notification only if it would be capable of later answering a *Sync* protocol request concerning this block.
 
 An implementation must not send a block annouce notification concerning a block header that hasn't been [*validated*](./blocks-verification.md).
 
@@ -213,6 +213,8 @@ Where `Vote type` is one of:
 - `0x0`: Prevote
 - `0x1`: Precommit
 - `0x2`: Primary propose
+
+An implementation should send a vote grandpa notification only if it would be capable of later answering a *Sync* protocol request concerning the target block.
 
 #### Catch-up request
 
