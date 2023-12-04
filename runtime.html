@@ -165,6 +165,7 @@
 <p>The <strong>runtime WebAssembly</strong> is allowed to import any function, whatever their signature. A host implementation must not consider a <strong>runtime WebAssembly</strong> as invalid only because it imports an unknown function or a known function with a signature that doesn't match the expected one. A host implementation must raise an error only if such a function is called during the execution of the WebAssembly.</p>
 <h2 id="runtime-call"><a class="header" href="#runtime-call">Runtime call</a></h2>
 <p>Given a <em>runtime WebAssembly</em>, a <em>number of heap pages</em>, a <a href="state.html"><em>state</em></a>, a <em>runtime entry point</em>, an <em>offchain functions enabled</em> boolean, and some input data, the host can <strong>do a runtime call</strong>.</p>
+<p>TODO: offchain functions and keystore functions are different extensions I believe? it's unclear what is enabled/disabled together and what isn't</p>
 <p>Doing a runtime call consists in the following step:</p>
 <ul>
 <li>Verify that the <em>runtime entry point</em> is a function exported by the <em>runtime WebAssembly</em>, and whose signature is <code>(func $runtime_entry_point (param $data i32) (param $len i32) (result i64))</code>.</li>
