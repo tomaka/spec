@@ -141,6 +141,49 @@ When it receives a notification, an implementation should add the transaction to
 
 ### Grandpa
 
+The format of a notification one of the following:
+
+#### Neighbor packet
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x2 | 1 |
+| (constant) | 0x1 | 1 |
+| Round number | Little endian unsigned integer | 8 |
+| Set ID | Little endian unsigned integer | 8 |
+| Commit finalized height | Little endian unsigned integer | 4 TODO or 8 due to block number |
+
+TODO commit message
+
+#### Vote
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x0 | 1 |
+| Round number | Little endian unsigned integer | 8 |
+| Set ID | Little endian unsigned integer | 8 |
+| Vote type | Vote type | 1 |
+| Target block hash | Bytes | 32 |
+| Target block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
+| Signature | Bytes | 64 |
+| Authority public key | Bytes | 32 |
+
+Where `Vote type` is one of:
+
+- `0x0`: Prevote
+- `0x1`: Precommit
+- `0x2`: Primary propose
+
+#### Catch-up request
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x3 | 1 |
+| Round number | Little endian unsigned integer | 8 |
+| Set ID | Little endian unsigned integer | 8 |
+
+TODO: catch-up response
+
 ### Validation v1
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/validation/1`
