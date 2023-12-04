@@ -221,6 +221,31 @@
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_attested_candidate/2</code></p>
 <h2 id="notification-protocols"><a class="header" href="#notification-protocols">Notification protocols</a></h2>
 <h3 id="block-announces"><a class="header" href="#block-announces">Block announces</a></h3>
+<p>The format of the handshake is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Role</td><td>Role</td><td>1</td></tr>
+<tr><td>Best block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8</td></tr>
+<tr><td>Best block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Genesis block hash</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<blockquote>
+<p><strong>Note</strong>: The genesis block hash field is a redundant information.  TODO write an RFC about that</p>
+</blockquote>
+<p>Where <code>Role</code> is one of:</p>
+<ul>
+<li><code>0x1</code>: Full node capabilities.</li>
+<li><code>0x2</code>: Light client capabilities.</li>
+<li><code>0x4</code>: Authorities capabilities.</li>
+</ul>
+<p>TODO explain Role and consider renaming through an RFC</p>
+<p>The format of a notification is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Header</td><td>Block header</td><td>(variable)</td></tr>
+<tr><td>Is new best</td><td>Boolean (<code>true</code> if non-zero value)</td><td>1</td></tr>
+</tbody></table>
+<p>TODO: missing a field</p>
+<p>An implementation should only send a block announce notification if it would be capable of later answering a <em>Sync</em> protocol request concerning this block.</p>
+<p>An implementation must not send a block annouce notification concerning a block header that hasn't been <a href="./blocks-verification.html"><em>validated</em></a>.</p>
 <h3 id="transactions"><a class="header" href="#transactions">Transactions</a></h3>
 <p>The <em>transactions</em> notifications substream should be opened only after a <em>block announces</em> notifications substream has been opened.</p>
 <p>The <em>handshake</em> of this substream is an empty set of bytes.</p>
@@ -237,7 +262,14 @@
 TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is merged before this spec is finished</p>
 <p>When it receives a notification, an implementation should add the transaction to TODO.</p>
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
-<p>The format of a notification one of the following:</p>
+<p>The format of the handshake is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Role</td><td>Role</td><td>1</td></tr>
+</tbody></table>
+<blockquote>
+<p><strong>Note</strong>: <code>Role</code> is defined in the <em>Block announces</em> section.</p>
+</blockquote>
+<p>The format of a notification is one of the following:</p>
 <h4 id="neighbor-packet"><a class="header" href="#neighbor-packet">Neighbor packet</a></h4>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>(constant)</td><td>0x2</td><td>1</td></tr>
