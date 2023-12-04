@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html" class="active"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">3.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">4.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">4.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">4.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">4.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">4.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">5.</strong> Liveness requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html" class="active"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">6.</strong> Liveness requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -207,7 +207,7 @@
 </li>
 <li>Call <code>BlockBuilder_inherent_extrinsics</code> TODO detail the input  TODO: it's not possible to decode the output without the runtime at the moment</li>
 <li>For each extrinsic returned <code>BlockBuilder_inherent_extrinsics</code>, call <code>BlockBuilder_apply_extrinsic</code>. TODO detail return value</li>
-<li>For each transaction, call <code>BlockBuilder_apply_extrinsic</code>. TODO details and indicate for how long</li>
+<li>For each transaction, call <code>BlockBuilder_apply_extrinsic</code>. If this runtime call fails, the block authoring process must continue and the transaction and any transaction that <em>comes after</em> must be ignored for the remainder of the block authoring operation. TODO details and indicate for how long</li>
 <li>Call <code>BlockBuilder_finalize_block</code>, with an empty input.</li>
 <li>Create a digital signature of the <em>block header</em> using the ed25519 or sr25519 private key.</li>
 <li>Add to the digest items of the <em>block header</em> either an <em>Aura seal</em> or a <em>Babe seal</em> (depending on whether the slot was an Aura slot or a Babe slot) digest item containing the signature. Add one to the <em>number of digest items</em> of the <em>block header</em>.</li>
@@ -223,7 +223,8 @@ This constraint is necessary in order to guarantee that no two blocks using the 
 <tr><td>Timestamp</td><td>Little-endian unsigned integer</td><td>8</td></tr>
 </tbody></table>
 <p>The <code>Timestamp</code> field must contain the current Unix time, in other words the number of milliseconds since the Unix epoch ignoring leap seconds.</p>
-<p>TODO parachain inherents</p>
+<p>TODO parachain inherents
+https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429</p>
 
                     </main>
 
@@ -233,7 +234,7 @@ This constraint is necessary in order to guarantee that no two blocks using the 
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="parachains.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="transactions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -247,7 +248,7 @@ This constraint is necessary in order to guarantee that no two blocks using the 
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="parachains.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="transactions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

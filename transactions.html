@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Kademlia</title>
+        <title>Transactions</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html" class="active"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">6.</strong> Liveness requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html" class="active"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="liveness-requirements.html"><strong aria-hidden="true">6.</strong> Liveness requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -142,18 +142,35 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="kademlia"><a class="header" href="#kademlia">Kademlia</a></h1>
-<h2 id="authority-discovery"><a class="header" href="#authority-discovery">Authority discovery</a></h2>
+                        <h1 id="transactions"><a class="header" href="#transactions">Transactions</a></h1>
+<p>A <strong>transaction</strong> is defined as an opaque list of bytes.</p>
+<p>An implementation should not try to interpret the format of a transaction.</p>
+<h2 id="validation"><a class="header" href="#validation">Validation</a></h2>
+<p>Given a <em>block</em>, a transaction can be <strong>validated</strong> against this particular block by following these steps:</p>
+<ul>
+<li>Check the version of the <code>TaggedTransactionQueue</code> API in the runtime specification. If the version is not equal to either <code>2</code> or <code>3</code>, the validation fails.</li>
+<li>If the API version is equal to <code>2</code>, perform a <em>runtime call</em> of the function <code>Core_initialize_block</code>. TODO more precise</li>
+<li>Perform a <em>runtime call</em> of the function <code>TaggedTransactionQueue_validate_transaction</code>. TODO more precise</li>
+</ul>
+<p>TODO</p>
+<h2 id="transactions-ordering"><a class="header" href="#transactions-ordering">Transactions ordering</a></h2>
+<p>TODO: explain relationship with blocks</p>
+<p>Given two validated transactions A and B, the <strong>ordering</strong> of A and B is defined as:</p>
+<ul>
+<li>If the intersection of A's <code>provides</code> tags list with B's <code>requires</code> tags is non-empty, then B must come <strong>after</strong> A. TODO: what if A's requires overlaps with B's provides at the same time?</li>
+<li>Otherwise, if A's <code>priority</code> is strictly superior to B's <code>priority</code>, then B must come <strong>after</strong> A.</li>
+<li>Otherwise, A and B are <strong>equal</strong>.</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="network-protocol.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="blocks-authoring.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="liveness-requirements.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="parachains.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -163,11 +180,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="network-protocol.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="blocks-authoring.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="liveness-requirements.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="parachains.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
