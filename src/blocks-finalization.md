@@ -1,12 +1,14 @@
 # Blocks finalization
 
+## Finalized block
+
+Given a set of *block header*s, a set of *Grandpa commit*s, and a set of *Grandpa justification*s, the **latest finalized block** is defined as the block with the highest *block number* .
+
 ## Grandpa validators set
 
 Given a *block header*, the **Grandpa validators set** can be determined through the following process:
 
 TODO
-
-TODO: don't forget to remove from the list disabled validators
 
 ## Finalizable block
 
@@ -19,9 +21,9 @@ A *block header* is **finalizable** if:
 
 Given a set of prevote *block headers*, a set of precommit *block headers*, and a *number of validators*:
 
-### Threshold
+### Supermajority threshold
 
-The **threshold** is defined as `number of validators * 2 / 3 + 1`.
+The **supermajority threshold** is defined as `(number of validators - number of validators that have equivocated) * 2 / 3 + 1`.
 
 ### Prevotes ghost
 
@@ -33,7 +35,7 @@ TODO explain better
 
 ### Estimate
 
-The **estimate** is defined as the block inferior or equal to the *prevotes ghost* that can potentially achieve a supermajority of the threshold.
+The **estimate** is defined as the precommit block header inferior or equal to the *prevotes ghost* that can potentially achieve a supermajority of the threshold.
 TODO: define more formally
 
 > **Note**: More informally, the estimate is the highest block that could still potentially achieve a supermajority.

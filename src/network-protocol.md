@@ -32,6 +32,72 @@ No reason is provided to the requester when the responder refuses to answer the 
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/sync/sync/2`
 
+TODO https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/substrate/client/network/sync/src/schema/api.v1.proto#L5
+
+The **request** is defined as the encoding of the `BlockRequest` protobuf struct in the following document:
+
+```protobuf
+syntax = "proto3";
+
+package api.v1;
+
+enum Direction {
+	Ascending = 0;
+	Descending = 1;
+}
+
+message BlockRequest {
+	uint32 fields = 1;
+	oneof from_block {
+		bytes hash = 2;
+		bytes number = 3;
+	}
+	Direction direction = 5;
+	uint32 max_blocks = 6; // optional
+	bool support_multiple_justifications = 7; // optional
+}
+```
+
+The **response** is defined as the encoding of the `BlockResponse` protobuf struct in the following document:
+
+```protobuf
+syntax = "proto3";
+
+package api.v1;
+
+message BlockResponse {
+	repeated BlockData blocks = 1;
+}
+
+message BlockData {
+	// Block header hash.
+	bytes hash = 1;
+	// Block header if requested.
+	bytes header = 2; // optional
+	// Block body if requested.
+	repeated bytes body = 3; // optional
+	// Block receipt if requested.
+	bytes receipt = 4; // optional
+	// Block message queue if requested.
+	bytes message_queue = 5; // optional
+	// Justification if requested.
+	bytes justification = 6; // optional
+	// True if justification should be treated as present but empty.
+	// This hack is unfortunately necessary because shortcomings in the protobuf format otherwise
+	// doesn't make in possible to differentiate between a lack of justification and an empty
+	// justification.
+	bool is_empty_justification = 7; // optional, false if absent
+	// Justifications if requested.
+	// Unlike the field for a single justification, this field does not required an associated
+	// boolean to differentiate between the lack of justifications and empty justification(s). This
+	// is because empty justifications, like all justifications, are paired with a non-empty
+	// consensus engine ID.
+	bytes justifications = 8; // optional
+	// Indexed block body if requestd.
+	repeated bytes indexed_body = 9; // optional
+}
+```
+
 ### Warp sync
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/sync/warp`
@@ -63,9 +129,118 @@ TODO: what happens if block hash unknown
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/state/2`
 
+The **request** is defined as the encoding of the `StateRequest` protobuf struct in the following document:
+
+```protobuf
+syntax = "proto3";
+
+package api.v1;
+
+message StateRequest {
+	bytes block = 1;
+	repeated bytes start = 2; // optional
+	bool no_proof = 3;
+}
+```
+
+The **response** is defined as the encoding of the `StateResponse` protobuf struct in the following document:
+
+```protobuf
+syntax = "proto3";
+
+package api.v1;
+
+message StateResponse {
+	// A collection of keys-values states. Only populated if `no_proof` is `true`
+	repeated KeyValueStateEntry entries = 1;
+	// If `no_proof` is false in request, this contains proof nodes.
+	bytes proof = 2;
+}
+
+// A key value state.
+message KeyValueStateEntry {
+	// Root of for this level, empty length bytes
+	// if top level.
+	bytes state_root = 1;
+	// A collection of keys-values.
+	repeated StateEntry entries = 2;
+	// Set to true when there are no more keys to return.
+	bool complete = 3;
+}
+
+// A key-value pair.
+message StateEntry {
+	bytes key = 1;
+	bytes value = 2;
+}
+```
+
+TODO clean up
+
 ### Light
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/light/2`
+
+The **request** is defined as the encoding of the `Request` protobuf struct in the following document:
+
+```protobuf
+syntax = "proto2";
+
+package api.v1.light;
+
+message Request {
+	oneof request {
+		RemoteCallRequest remote_call_request = 1;
+		RemoteReadRequest remote_read_request = 2;
+		RemoteReadChildRequest remote_read_child_request = 4;
+	}
+}
+
+message RemoteCallRequest {
+	required bytes block = 2;
+	required string method = 3;
+	required bytes data = 4;
+}
+
+message RemoteReadRequest {
+	required bytes block = 2;
+	repeated bytes keys = 3;
+}
+
+message RemoteReadChildRequest {
+	required bytes block = 2;
+	required bytes storage_key = 3;
+	repeated bytes keys = 6;
+}
+```
+
+TODO describe fields
+
+The **response** is defined as the encoding of the `Response` protobuf struct in the following document:
+
+```protobuf
+syntax = "proto2";
+
+package api.v1.light;
+
+message Response {
+	oneof response {
+		RemoteCallResponse remote_call_response = 1;
+		RemoteReadResponse remote_read_response = 2;
+	}
+}
+
+message RemoteCallResponse {
+	optional bytes proof = 2;
+}
+
+message RemoteReadResponse {
+	optional bytes proof = 2;
+}
+```
+
+The `proof` is TODO
+TODO: the proof can be missing if the remote refuses to answer, which is redundant with the closing of the substream, maybe clean this with an RFC
 
 ### Kademlia
 
@@ -85,33 +260,49 @@ TODO: for protocols below, see config at https://github.com/paritytech/polkadot-
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_chunk/1`
 
+TODO
+
 ### Collation fetching v1
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_collation/1`
+
+TODO
 
 ### Collation fetching v2
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_collation/2`
 
+TODO
+
 ### PoV fetching
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_pov/1`
+
+TODO
 
 ### Available data fetching
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_available_data/1`
 
+TODO
+
 ### Statement fetching
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_statement/1`
+
+TODO
 
 ### Dispute sending
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/send_dispute/1`
 
+TODO
+
 ### Attested candidate request
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_attested_candidate/2`
+
+TODO
 
 ## Notification protocols
 
@@ -230,13 +421,19 @@ TODO: catch-up response
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/validation/1`
 
+TODO
+
 ### Validation v2
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/validation/2`
 
+TODO
+
 ### Collation v1
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/collation/1`
+
+TODO
 
 ### Collation v2
 
