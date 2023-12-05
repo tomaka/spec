@@ -430,6 +430,7 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <blockquote>
 <p><strong>Note</strong>: <code>Role</code> is defined in the <em>Block announces</em> section.</p>
 </blockquote>
+<p>An implementation can use the <code>Role</code> of a peer as a hint in order to determine the priority level at which it broadcasts notifications to that peer.</p>
 <p>The format of a notification is one of the following:</p>
 <h4 id="neighbor-packet"><a class="header" href="#neighbor-packet">Neighbor packet</a></h4>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
@@ -439,7 +440,11 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
 <tr><td>Commit finalized height</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
 </tbody></table>
-<p>TODO commit message</p>
+<h4 id="commit-message"><a class="header" href="#commit-message">Commit message</a></h4>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x1</td><td>1</td></tr>
+<tr><td>Grandpa commit</td><td>Grandpa commit TODO link</td><td>(variable)</td></tr>
+</tbody></table>
 <h4 id="vote"><a class="header" href="#vote">Vote</a></h4>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
@@ -464,7 +469,24 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
 <tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
 </tbody></table>
-<p>TODO: catch-up response</p>
+<h3 id="catch-up-response"><a class="header" href="#catch-up-response">Catch-up response</a></h3>
+<p>TODO: according to smoldot the set id is before the round number, whereas everywhere else it's the other way around, check whether smoldot is wrong or if it's actually like that</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x4</td><td>1</td></tr>
+<tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Number of prevotes</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Prevotes</td><td>Vote</td><td><em>Number of prevotes</em> * 36 or 40 TODO</td></tr>
+<tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>Base block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Base block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+</tbody></table>
+<p>Where a <strong>Vote</strong> is defined as:</p>
+<p>| Target block hash | Bytes | 32 |
+| Target block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
+| Signature | Bytes | 64 |
+| Authority public key | Bytes | 32 |</p>
 <h3 id="validation-v1"><a class="header" href="#validation-v1">Validation v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/validation/1</code></p>
 <p>TODO</p>
