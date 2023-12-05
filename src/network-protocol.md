@@ -372,6 +372,8 @@ The format of the handshake is defined as:
 
 > **Note**: `Role` is defined in the *Block announces* section.
 
+An implementation can use the `Role` of a peer as a hint in order to determine the priority level at which it broadcasts notifications to that peer.
+
 The format of a notification is one of the following:
 
 #### Neighbor packet
@@ -384,7 +386,12 @@ The format of a notification is one of the following:
 | Set ID | Little endian unsigned integer | 8 |
 | Commit finalized height | Little endian unsigned integer | 4 TODO or 8 due to block number |
 
-TODO commit message
+#### Commit message
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x1 | 1 |
+| Grandpa commit | Grandpa commit TODO link | (variable) |
 
 #### Vote
 
@@ -415,7 +422,28 @@ An implementation should send a vote grandpa notification only if it would be ca
 | Round number | Little endian unsigned integer | 8 |
 | Set ID | Little endian unsigned integer | 8 |
 
-TODO: catch-up response
+### Catch-up response
+
+TODO: according to smoldot the set id is before the round number, whereas everywhere else it's the other way around, check whether smoldot is wrong or if it's actually like that
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x4 | 1 |
+| Set ID | Little endian unsigned integer | 8 |
+| Round number | Little endian unsigned integer | 8 |
+| Number of prevotes | SCALE-compact-encoded unsigned integer | (variable) |
+| (repeated) Prevotes | Vote | *Number of prevotes* * 36 or 40 TODO |
+| Number of precommits | SCALE-compact-encoded unsigned integer | (variable) |
+| (repeated) Precommits | Vote | *Number of precommits* * 36 or 40 TODO |
+| Base block hash | Bytes | 32 |
+| Base block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
+
+Where a **Vote** is defined as:
+
+| Target block hash | Bytes | 32 |
+| Target block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
+| Signature | Bytes | 64 |
+| Authority public key | Bytes | 32 |
 
 ### Validation v1
 
