@@ -223,6 +223,9 @@
 <li>If the total number of Babe primary slots claims on A is superior to the total number of Babe primary slots claims on B, then A is a better block than B. TODO: define Babe primary slots claims</li>
 </ul>
 <p>TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</p>
+<h2 id="tree-of-blocks"><a class="header" href="#tree-of-blocks">Tree of blocks</a></h2>
+<p>A <strong>tree of blocks</strong> is defined as a set of <em>block headers</em> where the <em>parent hash</em> of every block header in the set except for one is the hash of a block header that is also found in the set.</p>
+<p>The <strong>best block</strong> of a <em>tree of blocks</em> is the block in the set for which there exists no <em>better block</em>. If multiple blocks are equal, which one is the <em>best block</em> is unspecified and implementation-defined.</p>
 
                     </main>
 

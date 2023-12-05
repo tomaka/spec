@@ -143,11 +143,74 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="blocks-finalization"><a class="header" href="#blocks-finalization">Blocks finalization</a></h1>
-<h2 id="finalized-block"><a class="header" href="#finalized-block">Finalized block</a></h2>
-<p>Given a set of <em>block header</em>s, a set of <em>Grandpa commit</em>s, and a set of <em>Grandpa justification</em>s, the <strong>latest finalized block</strong> is defined as the block with the highest <em>block number</em> .</p>
 <h2 id="grandpa-validators-set"><a class="header" href="#grandpa-validators-set">Grandpa validators set</a></h2>
 <p>Given a <em>block header</em>, the <strong>Grandpa validators set</strong> can be determined through the following process:</p>
+<p>TODO finish</p>
+<ul>
+<li>Find the first ancestor that has a Grandpa digest item.</li>
+</ul>
+<p>TODO make it clear that for forced changes the block must have been executed, otherwise security issue</p>
+<blockquote>
+<p><strong>Note</strong>: The <em>Grandpa validators set</em> of a block corresponds to the list of validators that can finalize blocks that are children of the block in question. The block itself must be finalized by a validator of the validators set of the parent block.</p>
+</blockquote>
+<p>The <strong>validators set id</strong> of a block can be determined through:</p>
 <p>TODO</p>
+<h2 id="grandpa-commits-and-justifications"><a class="header" href="#grandpa-commits-and-justifications">Grandpa commits and justifications</a></h2>
+<h3 id="grandpa-commit"><a class="header" href="#grandpa-commit">Grandpa commit</a></h3>
+<p>A <strong>Grandpa commit</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+<tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>Number of authentication data</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Authentication data</td><td>Authentication data</td><td><em>Number of authentication data</em> * 96</td></tr>
+</tbody></table>
+<p>Where a <strong>Vote</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+</tbody></table>
+<p>And <strong>Authentication data</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Signature</td><td>Bytes</td><td>64</td></tr>
+<tr><td>Authority public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<h3 id="grandpa-justification"><a class="header" href="#grandpa-justification">Grandpa justification</a></h3>
+<p>A <strong>Grandpa justification</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+<tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>Number of vote ancestries</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Vote ancestries</td><td>Block header</td><td><em>Number of vote ancestries</em> * (variable)</td></tr>
+</tbody></table>
+<p>Where a <strong>Vote</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+<tr><td>Signature</td><td>Bytes</td><td>64</td></tr>
+<tr><td>Authority public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<h3 id="verification"><a class="header" href="#verification">Verification</a></h3>
+<p>A <em>Grandpa commit</em> or <em>Grandpa justification</em> can be <strong>verified</strong> by following these steps:</p>
+<ul>
+<li>TODO</li>
+</ul>
+<h2 id="finalized-block"><a class="header" href="#finalized-block">Finalized block</a></h2>
+<p>Given a <em>tree of blocks</em>, a set of <em>verified Grandpa commit</em>s, and a set of <em>verified Grandpa justification</em>s, the <strong>latest finalized block</strong> is defined as the block with the highest <em>block number</em> TODO.</p>
+<p>An implementation can assume that when it adds a new <em>Grandpa commit</em> or <em>Grandpa justification</em> to the set, the <em>latest finalized block</em> can only ever become a descendant of the previous latest finalized block. TODO unclear</p>
+<blockquote>
+<p><strong>Note</strong>: Thanks to this assumption, an implementation generally only needs to keep track of the charateristics of the latest finalized block and its descendants. Any block that isn't the latest finalized block or one of its descendants may be discarded.</p>
+</blockquote>
+<p>A block is <strong>finalized</strong> either if it is equal to the <em>latest finalized block</em>, or if it is the parent of a <em>finalized</em> block.</p>
+<blockquote>
+<p><strong>Note</strong>: In other words, the <em>latest finalized block</em> and all of its ancestors (and no other block besides them) are <em>finalized</em>.</p>
+</blockquote>
 <h2 id="finalizable-block"><a class="header" href="#finalizable-block">Finalizable block</a></h2>
 <p>A <em>block header</em> is <strong>finalizable</strong> if:</p>
 <ul>

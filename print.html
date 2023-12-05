@@ -338,6 +338,9 @@ The implementation then allocates a 32 bytes buffer using the same mechanism as 
 <li>If the total number of Babe primary slots claims on A is superior to the total number of Babe primary slots claims on B, then A is a better block than B. TODO: define Babe primary slots claims</li>
 </ul>
 <p>TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</p>
+<h2 id="tree-of-blocks"><a class="header" href="#tree-of-blocks">Tree of blocks</a></h2>
+<p>A <strong>tree of blocks</strong> is defined as a set of <em>block headers</em> where the <em>parent hash</em> of every block header in the set except for one is the hash of a block header that is also found in the set.</p>
+<p>The <strong>best block</strong> of a <em>tree of blocks</em> is the block in the set for which there exists no <em>better block</em>. If multiple blocks are equal, which one is the <em>best block</em> is unspecified and implementation-defined.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="blocks-verification"><a class="header" href="#blocks-verification">Blocks verification</a></h1>
 <p>There exists two levels of verification of a block: validating the block and executing the block.</p>
 <p>A client implementation can assume that a block that successfully executes also successfully validates.
@@ -402,6 +405,9 @@ TODO</li>
 </li>
 </ul>
 <p>A client implementation can assume that these two methods produce the same result. TODO: what if it doesn't</p>
+<blockquote>
+<p><strong>Note</strong>: The <em>Aura validators set</em> and <em>Babe validators set</em> of a block describe the list of validators that must author children of that block. The block itself must have been authored by one of the validators in the validators set of its parent block.</p>
+</blockquote>
 <h2 id="next-slot-claim"><a class="header" href="#next-slot-claim">Next slot claim</a></h2>
 <p>Given a block and an sr25519 private key, the next <strong>claimable Babe primary slot</strong> of a block is:</p>
 <ul>
@@ -419,10 +425,9 @@ TODO</li>
 <li>TODO</li>
 </ul>
 <h2 id="authoring-a-block"><a class="header" href="#authoring-a-block">Authoring a block</a></h2>
-<p>Given a set of blocks, an ed25519 or an sr25519 private key, and a list of transactions TODO detail what that means, <strong>authoring a block</strong> consists in the following steps:</p>
+<p>Given a <em>tree of blocks</em>, an ed25519 or an sr25519 private key, and a list of transactions TODO detail what that means, <strong>authoring a block</strong> consists in the following steps:</p>
 <ul>
-<li>Find the <em>best block</em> amongst that set using the <strong>better block</strong> algorithm described above.</li>
-<li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and private key combination.</li>
+<li>Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of the <em>best block</em> of the tree and private key combination.</li>
 <li>Wait until one of these three slots, whichever comes first. TODO: explain how to convert to timestamp</li>
 <li>Do a runtime call for <code>Core_initialize_block</code> using the state of the <em>best block</em> (see above), passing as parameter a <em>block header</em> with the following field values:
 <ul>
@@ -454,11 +459,74 @@ This constraint is necessary in order to guarantee that no two blocks using the 
 <p>TODO parachain inherents
 https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="blocks-finalization"><a class="header" href="#blocks-finalization">Blocks finalization</a></h1>
-<h2 id="finalized-block"><a class="header" href="#finalized-block">Finalized block</a></h2>
-<p>Given a set of <em>block header</em>s, a set of <em>Grandpa commit</em>s, and a set of <em>Grandpa justification</em>s, the <strong>latest finalized block</strong> is defined as the block with the highest <em>block number</em> .</p>
 <h2 id="grandpa-validators-set"><a class="header" href="#grandpa-validators-set">Grandpa validators set</a></h2>
 <p>Given a <em>block header</em>, the <strong>Grandpa validators set</strong> can be determined through the following process:</p>
+<p>TODO finish</p>
+<ul>
+<li>Find the first ancestor that has a Grandpa digest item.</li>
+</ul>
+<p>TODO make it clear that for forced changes the block must have been executed, otherwise security issue</p>
+<blockquote>
+<p><strong>Note</strong>: The <em>Grandpa validators set</em> of a block corresponds to the list of validators that can finalize blocks that are children of the block in question. The block itself must be finalized by a validator of the validators set of the parent block.</p>
+</blockquote>
+<p>The <strong>validators set id</strong> of a block can be determined through:</p>
 <p>TODO</p>
+<h2 id="grandpa-commits-and-justifications"><a class="header" href="#grandpa-commits-and-justifications">Grandpa commits and justifications</a></h2>
+<h3 id="grandpa-commit"><a class="header" href="#grandpa-commit">Grandpa commit</a></h3>
+<p>A <strong>Grandpa commit</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+<tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>Number of authentication data</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Authentication data</td><td>Authentication data</td><td><em>Number of authentication data</em> * 96</td></tr>
+</tbody></table>
+<p>Where a <strong>Vote</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+</tbody></table>
+<p>And <strong>Authentication data</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Signature</td><td>Bytes</td><td>64</td></tr>
+<tr><td>Authority public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<h3 id="grandpa-justification"><a class="header" href="#grandpa-justification">Grandpa justification</a></h3>
+<p>A <strong>Grandpa justification</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+<tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>Number of vote ancestries</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Vote ancestries</td><td>Block header</td><td><em>Number of vote ancestries</em> * (variable)</td></tr>
+</tbody></table>
+<p>Where a <strong>Vote</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+<tr><td>Signature</td><td>Bytes</td><td>64</td></tr>
+<tr><td>Authority public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<h3 id="verification"><a class="header" href="#verification">Verification</a></h3>
+<p>A <em>Grandpa commit</em> or <em>Grandpa justification</em> can be <strong>verified</strong> by following these steps:</p>
+<ul>
+<li>TODO</li>
+</ul>
+<h2 id="finalized-block"><a class="header" href="#finalized-block">Finalized block</a></h2>
+<p>Given a <em>tree of blocks</em>, a set of <em>verified Grandpa commit</em>s, and a set of <em>verified Grandpa justification</em>s, the <strong>latest finalized block</strong> is defined as the block with the highest <em>block number</em> TODO.</p>
+<p>An implementation can assume that when it adds a new <em>Grandpa commit</em> or <em>Grandpa justification</em> to the set, the <em>latest finalized block</em> can only ever become a descendant of the previous latest finalized block. TODO unclear</p>
+<blockquote>
+<p><strong>Note</strong>: Thanks to this assumption, an implementation generally only needs to keep track of the charateristics of the latest finalized block and its descendants. Any block that isn't the latest finalized block or one of its descendants may be discarded.</p>
+</blockquote>
+<p>A block is <strong>finalized</strong> either if it is equal to the <em>latest finalized block</em>, or if it is the parent of a <em>finalized</em> block.</p>
+<blockquote>
+<p><strong>Note</strong>: In other words, the <em>latest finalized block</em> and all of its ancestors (and no other block besides them) are <em>finalized</em>.</p>
+</blockquote>
 <h2 id="finalizable-block"><a class="header" href="#finalizable-block">Finalizable block</a></h2>
 <p>A <em>block header</em> is <strong>finalizable</strong> if:</p>
 <ul>
