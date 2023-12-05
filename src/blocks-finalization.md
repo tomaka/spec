@@ -101,6 +101,7 @@ A block is **finalized** either if it is equal to the *latest finalized block*, 
 A *block header* is **finalizable** if all of the following is true:
 
 - Its parent block is *finalized* or *finalizable*.
+- If the *validators set id* of the block is different from the *validators set id* of its parent block, its parent block must be *finalized*.
 - TODO: parachain stuff https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html
 
 ## Grandpa rounds
@@ -135,8 +136,6 @@ A round is **completable** if either:
 - The *estimate* is strictly inferior to the *prevotes ghost*.
 - It becomes impossible for the *estimate* to become strictly superior to the *prevotes ghost*.
 
-### Finality update
+A *completable* round can be turned into a *Grandpa commit* or a *Grandpa justification* whose *target block hash* and *target block number* is the *estimate* of the round.
 
-The **updated finalized block** is defined as:
-
-- 
+> **Note**: In other words, once a round is completable, its estimate can be finalized, assuming that .
