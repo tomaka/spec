@@ -571,6 +571,8 @@ TODO: define more formally</p>
 <blockquote>
 <p><strong>Note</strong>: In other words, once a round is completable, its estimate can be finalized, assuming that .</p>
 </blockquote>
+<p>TODO: once a round is completable, <code>round - 1</code> can be completely closed and all votes discarded (source: Alistair)
+TODO: this means that there are always 2 rounds running at any given time</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transactions"><a class="header" href="#transactions">Transactions</a></h1>
 <p>A <strong>transaction</strong> is defined as an opaque list of bytes.</p>
 <p>An implementation should not try to interpret the format of a transaction.</p>
@@ -627,10 +629,16 @@ TODO libp2p handshake</p>
 <h2 id="yamux"><a class="header" href="#yamux">Yamux</a></h2>
 <p>TODO: https://github.com/hashicorp/yamux/blob/master/spec.md</p>
 <h2 id="supported-protocols"><a class="header" href="#supported-protocols">Supported protocols</a></h2>
+<h3 id="tcpip"><a class="header" href="#tcpip">TCP/IP</a></h3>
+<p>In order to connect to a multiaddress of the format <code>/ip4/.../tcp/...</code>, <code>/ip4/.../tcp/.../ws</code>, <code>/ip4/.../tcp/.../tls/ws</code>, <code>/ip6/.../tcp/...</code>, <code>/ip6/.../tcp/.../ws</code>, or <code>/ip6/.../tcp/.../tls/ws</code>, an implementation must:</p>
 <ul>
-<li>TCP/IP</li>
-<li>TCP/IP and WebSocket (secure or not)</li>
+<li>Open a TCP/IP connection to the given IP address and port.</li>
+<li>(ony for multiaddresses ending with <code>/ws</code> or <code>/tls/ws</code>) Perform <a href="https://datatracker.ietf.org/doc/html/rfc6455">a WebSocket (for <code>/ws</code>) or WebSocket secure (for <code>/tls/ws</code>)</a> handshake.</li>
+<li>Perform a multistream-select negotiation for the protocol named <code>/noise</code>.</li>
+<li>Perform a Noise protocol handshake.</li>
+<li>Perform a multistream-select negotiation for the protocol named <code>/yamux/1.0.0</code>.</li>
 </ul>
+<p>Multiaddresses of the format <code>/ip4/.../tcp/.../wss</code> and <code>/ip6/.../tcp/.../wss</code> must also be supported and are equivalent to respectively <code>/ip4/.../tcp/.../tls/ws</code> and <code>/ip6/.../tcp/.../tls/ws</code>. These multiaddresses are deprecated and will be removed in the future.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="validators-matrix"><a class="header" href="#validators-matrix">Validators matrix</a></h1>
 <h2 id="topology"><a class="header" href="#topology">Topology</a></h2>
 <p>Given a <em>block</em>, the <strong>validators topology</strong> can be calculated by:</p>

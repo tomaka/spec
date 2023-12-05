@@ -165,10 +165,16 @@ TODO libp2p handshake</p>
 <h2 id="yamux"><a class="header" href="#yamux">Yamux</a></h2>
 <p>TODO: https://github.com/hashicorp/yamux/blob/master/spec.md</p>
 <h2 id="supported-protocols"><a class="header" href="#supported-protocols">Supported protocols</a></h2>
+<h3 id="tcpip"><a class="header" href="#tcpip">TCP/IP</a></h3>
+<p>In order to connect to a multiaddress of the format <code>/ip4/.../tcp/...</code>, <code>/ip4/.../tcp/.../ws</code>, <code>/ip4/.../tcp/.../tls/ws</code>, <code>/ip6/.../tcp/...</code>, <code>/ip6/.../tcp/.../ws</code>, or <code>/ip6/.../tcp/.../tls/ws</code>, an implementation must:</p>
 <ul>
-<li>TCP/IP</li>
-<li>TCP/IP and WebSocket (secure or not)</li>
+<li>Open a TCP/IP connection to the given IP address and port.</li>
+<li>(ony for multiaddresses ending with <code>/ws</code> or <code>/tls/ws</code>) Perform <a href="https://datatracker.ietf.org/doc/html/rfc6455">a WebSocket (for <code>/ws</code>) or WebSocket secure (for <code>/tls/ws</code>)</a> handshake.</li>
+<li>Perform a multistream-select negotiation for the protocol named <code>/noise</code>.</li>
+<li>Perform a Noise protocol handshake.</li>
+<li>Perform a multistream-select negotiation for the protocol named <code>/yamux/1.0.0</code>.</li>
 </ul>
+<p>Multiaddresses of the format <code>/ip4/.../tcp/.../wss</code> and <code>/ip6/.../tcp/.../wss</code> must also be supported and are equivalent to respectively <code>/ip4/.../tcp/.../tls/ws</code> and <code>/ip6/.../tcp/.../tls/ws</code>. These multiaddresses are deprecated and will be removed in the future.</p>
 
                     </main>
 
