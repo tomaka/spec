@@ -74,15 +74,23 @@ Where a **Vote** is defined as:
 
 A *Grandpa commit* or *Grandpa justification* can be **verified** by following these steps:
 
-- TODO
+- Fail the verification if there exists an *autority public key* that isn't present in the *Grandpa validators set* of the parent of the target block.
+- Fail the verification if there exists two *authority public key*s that are equal.
+- Fail the verification if the number of precommits is strictly inferior to `length(Grandpa validators set(parent)) * 2 / 3 + 1`. TODO: not satisfied with equation like that
+- Fail the verification if any of the target block hash and number of any of the votes isn't equal or a descendant of the target block hash and number of the commit or justification.
+- TODO verify signatures
+- TODO verify block ancestries
 
 ## Finalized block
 
-Given a *tree of blocks*, a set of *verified Grandpa commit*s, and a set of *verified Grandpa justification*s, the **latest finalized block** is defined as the block with the highest *block number* TODO.
+Given a *tree of blocks*, a set of *verified Grandpa commit*s, and a set of *verified Grandpa justification*s, the **latest finalized block** is defined as the block with the highest *block number* TODO explain better
 
-An implementation can assume that when it adds a new *Grandpa commit* or *Grandpa justification* to the set, the *latest finalized block* can only ever become a descendant of the previous latest finalized block. TODO unclear
+TODO: explain that there must be no gap in the commits and justifications ^ 
 
-> **Note**: Thanks to this assumption, an implementation generally only needs to keep track of the charateristics of the latest finalized block and its descendants. Any block that isn't the latest finalized block or one of its descendants may be discarded.
+An implementation can assume that when it adds a new *Grandpa commit* or *Grandpa justification* to the set, the *latest finalized block* can only ever become a descendant of the previous *latest finalized block*. TODO unclear
+If this assumption happened to be violated, the chain can be declared broken. Broken chains are out of scope of this specification. TODO: explain this somewhere this
+
+> **Note**: Thanks to this assumption, many of the block characteristics that an implementation typically puts in a cache (such as the Grandpa validators set) only need to be tracked for the latest finalized block and its descendants.
 
 A block is **finalized** either if it is equal to the *latest finalized block*, or if it is the parent of a *finalized* block.
 
@@ -90,10 +98,10 @@ A block is **finalized** either if it is equal to the *latest finalized block*, 
 
 ## Finalizable block
 
-A *block header* is **finalizable** if:
+A *block header* is **finalizable** if all of the following is true:
 
 - Its parent block is *finalized* or *finalizable*.
-- TODO: parachain stuff
+- TODO: parachain stuff https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html
 
 ## Grandpa rounds
 
