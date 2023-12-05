@@ -103,3 +103,9 @@ Given two block headers A and B, we can define the **better block** as follows:
 - If the total number of Babe primary slots claims on A is superior to the total number of Babe primary slots claims on B, then A is a better block than B. TODO: define Babe primary slots claims
 
 TODO: https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html
+
+## Tree of blocks
+
+A **tree of blocks** is defined as a set of *block headers* where the *parent hash* of every block header in the set except for one is the hash of a block header that is also found in the set.
+
+The **best block** of a *tree of blocks* is the block in the set for which there exists no *better block*. If multiple blocks are equal, which one is the *best block* is unspecified and implementation-defined.

@@ -31,6 +31,8 @@ Through a runtime call:
 
 A client implementation can assume that these two methods produce the same result. TODO: what if it doesn't
 
+> **Note**: The *Aura validators set* and *Babe validators set* of a block describe the list of validators that must author children of that block. The block itself must have been authored by one of the validators in the validators set of its parent block.
+
 ## Next slot claim
 
 Given a block and an sr25519 private key, the next **claimable Babe primary slot** of a block is:
@@ -50,10 +52,9 @@ Given a block and an ed25519 public key, the next **claimable Aura slot** of a b
 
 ## Authoring a block
 
-Given a set of blocks, an ed25519 or an sr25519 private key, and a list of transactions TODO detail what that means, **authoring a block** consists in the following steps:
+Given a *tree of blocks*, an ed25519 or an sr25519 private key, and a list of transactions TODO detail what that means, **authoring a block** consists in the following steps:
 
-- Find the *best block* amongst that set using the **better block** algorithm described above.
-- Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of that block and private key combination.
+- Determine the next claimable Aura slot, next claimable Babe primary slot, and the next Babe claimable secondary slot of the *best block* of the tree and private key combination.
 - Wait until one of these three slots, whichever comes first. TODO: explain how to convert to timestamp
 - Do a runtime call for `Core_initialize_block` using the state of the *best block* (see above), passing as parameter a *block header* with the following field values:
   - *Parent_hash* must be equal to the hash of the *best block*.
