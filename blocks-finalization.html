@@ -143,10 +143,11 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="blocks-finalization"><a class="header" href="#blocks-finalization">Blocks finalization</a></h1>
+<h2 id="finalized-block"><a class="header" href="#finalized-block">Finalized block</a></h2>
+<p>Given a set of <em>block header</em>s, a set of <em>Grandpa commit</em>s, and a set of <em>Grandpa justification</em>s, the <strong>latest finalized block</strong> is defined as the block with the highest <em>block number</em> .</p>
 <h2 id="grandpa-validators-set"><a class="header" href="#grandpa-validators-set">Grandpa validators set</a></h2>
 <p>Given a <em>block header</em>, the <strong>Grandpa validators set</strong> can be determined through the following process:</p>
 <p>TODO</p>
-<p>TODO: don't forget to remove from the list disabled validators</p>
 <h2 id="finalizable-block"><a class="header" href="#finalizable-block">Finalizable block</a></h2>
 <p>A <em>block header</em> is <strong>finalizable</strong> if:</p>
 <ul>
@@ -155,8 +156,8 @@
 </ul>
 <h2 id="grandpa-rounds"><a class="header" href="#grandpa-rounds">Grandpa rounds</a></h2>
 <p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em>, and a <em>number of validators</em>:</p>
-<h3 id="threshold"><a class="header" href="#threshold">Threshold</a></h3>
-<p>The <strong>threshold</strong> is defined as <code>number of validators * 2 / 3 + 1</code>.</p>
+<h3 id="supermajority-threshold"><a class="header" href="#supermajority-threshold">Supermajority threshold</a></h3>
+<p>The <strong>supermajority threshold</strong> is defined as <code>(number of validators - number of validators that have equivocated) * 2 / 3 + 1</code>.</p>
 <h3 id="prevotes-ghost"><a class="header" href="#prevotes-ghost">Prevotes ghost</a></h3>
 <p>The <strong>prevotes ghost</strong> is defined as the highest block header in the prevotes that has a supermajority of the threshold.
 If the number of prevote <em>block headers</em> is too small, the prevotes ghost is undefined.
@@ -165,7 +166,7 @@ TODO explain better</p>
 <p><strong>Note</strong>: As more block headers are added, the prevotes ghost can only ever move to higher blocks.</p>
 </blockquote>
 <h3 id="estimate"><a class="header" href="#estimate">Estimate</a></h3>
-<p>The <strong>estimate</strong> is defined as the block inferior or equal to the <em>prevotes ghost</em> that can potentially achieve a supermajority of the threshold.
+<p>The <strong>estimate</strong> is defined as the precommit block header inferior or equal to the <em>prevotes ghost</em> that can potentially achieve a supermajority of the threshold.
 TODO: define more formally</p>
 <blockquote>
 <p><strong>Note</strong>: More informally, the estimate is the highest block that could still potentially achieve a supermajority.</p>

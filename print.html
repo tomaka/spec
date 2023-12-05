@@ -454,10 +454,11 @@ This constraint is necessary in order to guarantee that no two blocks using the 
 <p>TODO parachain inherents
 https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="blocks-finalization"><a class="header" href="#blocks-finalization">Blocks finalization</a></h1>
+<h2 id="finalized-block"><a class="header" href="#finalized-block">Finalized block</a></h2>
+<p>Given a set of <em>block header</em>s, a set of <em>Grandpa commit</em>s, and a set of <em>Grandpa justification</em>s, the <strong>latest finalized block</strong> is defined as the block with the highest <em>block number</em> .</p>
 <h2 id="grandpa-validators-set"><a class="header" href="#grandpa-validators-set">Grandpa validators set</a></h2>
 <p>Given a <em>block header</em>, the <strong>Grandpa validators set</strong> can be determined through the following process:</p>
 <p>TODO</p>
-<p>TODO: don't forget to remove from the list disabled validators</p>
 <h2 id="finalizable-block"><a class="header" href="#finalizable-block">Finalizable block</a></h2>
 <p>A <em>block header</em> is <strong>finalizable</strong> if:</p>
 <ul>
@@ -466,8 +467,8 @@ https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b7
 </ul>
 <h2 id="grandpa-rounds"><a class="header" href="#grandpa-rounds">Grandpa rounds</a></h2>
 <p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em>, and a <em>number of validators</em>:</p>
-<h3 id="threshold"><a class="header" href="#threshold">Threshold</a></h3>
-<p>The <strong>threshold</strong> is defined as <code>number of validators * 2 / 3 + 1</code>.</p>
+<h3 id="supermajority-threshold"><a class="header" href="#supermajority-threshold">Supermajority threshold</a></h3>
+<p>The <strong>supermajority threshold</strong> is defined as <code>(number of validators - number of validators that have equivocated) * 2 / 3 + 1</code>.</p>
 <h3 id="prevotes-ghost"><a class="header" href="#prevotes-ghost">Prevotes ghost</a></h3>
 <p>The <strong>prevotes ghost</strong> is defined as the highest block header in the prevotes that has a supermajority of the threshold.
 If the number of prevote <em>block headers</em> is too small, the prevotes ghost is undefined.
@@ -476,7 +477,7 @@ TODO explain better</p>
 <p><strong>Note</strong>: As more block headers are added, the prevotes ghost can only ever move to higher blocks.</p>
 </blockquote>
 <h3 id="estimate"><a class="header" href="#estimate">Estimate</a></h3>
-<p>The <strong>estimate</strong> is defined as the block inferior or equal to the <em>prevotes ghost</em> that can potentially achieve a supermajority of the threshold.
+<p>The <strong>estimate</strong> is defined as the precommit block header inferior or equal to the <em>prevotes ghost</em> that can potentially achieve a supermajority of the threshold.
 TODO: define more formally</p>
 <blockquote>
 <p><strong>Note</strong>: More informally, the estimate is the highest block that could still potentially achieve a supermajority.</p>
@@ -597,6 +598,65 @@ TODO libp2p handshake</p>
 <p>No reason is provided to the requester when the responder refuses to answer the request.</p>
 <h3 id="sync"><a class="header" href="#sync">Sync</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/sync/sync/2</code></p>
+<p>TODO https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/substrate/client/network/sync/src/schema/api.v1.proto#L5</p>
+<p>The <strong>request</strong> is defined as the encoding of the <code>BlockRequest</code> protobuf struct in the following document:</p>
+<pre><code class="language-protobuf">syntax = &quot;proto3&quot;;
+
+package api.v1;
+
+enum Direction {
+	Ascending = 0;
+	Descending = 1;
+}
+
+message BlockRequest {
+	uint32 fields = 1;
+	oneof from_block {
+		bytes hash = 2;
+		bytes number = 3;
+	}
+	Direction direction = 5;
+	uint32 max_blocks = 6; // optional
+	bool support_multiple_justifications = 7; // optional
+}
+</code></pre>
+<p>The <strong>response</strong> is defined as the encoding of the <code>BlockResponse</code> protobuf struct in the following document:</p>
+<pre><code class="language-protobuf">syntax = &quot;proto3&quot;;
+
+package api.v1;
+
+message BlockResponse {
+	repeated BlockData blocks = 1;
+}
+
+message BlockData {
+	// Block header hash.
+	bytes hash = 1;
+	// Block header if requested.
+	bytes header = 2; // optional
+	// Block body if requested.
+	repeated bytes body = 3; // optional
+	// Block receipt if requested.
+	bytes receipt = 4; // optional
+	// Block message queue if requested.
+	bytes message_queue = 5; // optional
+	// Justification if requested.
+	bytes justification = 6; // optional
+	// True if justification should be treated as present but empty.
+	// This hack is unfortunately necessary because shortcomings in the protobuf format otherwise
+	// doesn't make in possible to differentiate between a lack of justification and an empty
+	// justification.
+	bool is_empty_justification = 7; // optional, false if absent
+	// Justifications if requested.
+	// Unlike the field for a single justification, this field does not required an associated
+	// boolean to differentiate between the lack of justifications and empty justification(s). This
+	// is because empty justifications, like all justifications, are paired with a non-empty
+	// consensus engine ID.
+	bytes justifications = 8; // optional
+	// Indexed block body if requestd.
+	repeated bytes indexed_body = 9; // optional
+}
+</code></pre>
 <h3 id="warp-sync"><a class="header" href="#warp-sync">Warp sync</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/sync/warp</code></p>
 <p>The <strong>request</strong> is as follows:</p>
@@ -617,8 +677,102 @@ TODO libp2p handshake</p>
 <p>TODO: what happens if block hash unknown</p>
 <h3 id="state-1"><a class="header" href="#state-1">State</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/state/2</code></p>
+<p>The <strong>request</strong> is defined as the encoding of the <code>StateRequest</code> protobuf struct in the following document:</p>
+<pre><code class="language-protobuf">syntax = &quot;proto3&quot;;
+
+package api.v1;
+
+message StateRequest {
+	bytes block = 1;
+	repeated bytes start = 2; // optional
+	bool no_proof = 3;
+}
+</code></pre>
+<p>The <strong>response</strong> is defined as the encoding of the <code>StateResponse</code> protobuf struct in the following document:</p>
+<pre><code class="language-protobuf">syntax = &quot;proto3&quot;;
+
+package api.v1;
+
+message StateResponse {
+	// A collection of keys-values states. Only populated if `no_proof` is `true`
+	repeated KeyValueStateEntry entries = 1;
+	// If `no_proof` is false in request, this contains proof nodes.
+	bytes proof = 2;
+}
+
+// A key value state.
+message KeyValueStateEntry {
+	// Root of for this level, empty length bytes
+	// if top level.
+	bytes state_root = 1;
+	// A collection of keys-values.
+	repeated StateEntry entries = 2;
+	// Set to true when there are no more keys to return.
+	bool complete = 3;
+}
+
+// A key-value pair.
+message StateEntry {
+	bytes key = 1;
+	bytes value = 2;
+}
+</code></pre>
+<p>TODO clean up</p>
 <h3 id="light"><a class="header" href="#light">Light</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/light/2</code></p>
+<p>The <strong>request</strong> is defined as the encoding of the <code>Request</code> protobuf struct in the following document:</p>
+<pre><code class="language-protobuf">syntax = &quot;proto2&quot;;
+
+package api.v1.light;
+
+message Request {
+	oneof request {
+		RemoteCallRequest remote_call_request = 1;
+		RemoteReadRequest remote_read_request = 2;
+		RemoteReadChildRequest remote_read_child_request = 4;
+	}
+}
+
+message RemoteCallRequest {
+	required bytes block = 2;
+	required string method = 3;
+	required bytes data = 4;
+}
+
+message RemoteReadRequest {
+	required bytes block = 2;
+	repeated bytes keys = 3;
+}
+
+message RemoteReadChildRequest {
+	required bytes block = 2;
+	required bytes storage_key = 3;
+	repeated bytes keys = 6;
+}
+</code></pre>
+<p>TODO describe fields</p>
+<p>The <strong>response</strong> is defined as the encoding of the <code>Response</code> protobuf struct in the following document:</p>
+<pre><code class="language-protobuf">syntax = &quot;proto2&quot;;
+
+package api.v1.light;
+
+message Response {
+	oneof response {
+		RemoteCallResponse remote_call_response = 1;
+		RemoteReadResponse remote_read_response = 2;
+	}
+}
+
+message RemoteCallResponse {
+	optional bytes proof = 2;
+}
+
+message RemoteReadResponse {
+	optional bytes proof = 2;
+}
+</code></pre>
+<p>The <code>proof</code> is TODO
+TODO: the proof can be missing if the remote refuses to answer, which is redundant with the closing of the substream, maybe clean this with an RFC</p>
 <h3 id="kademlia"><a class="header" href="#kademlia">Kademlia</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/kad</code></p>
 <p>Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.</p>
@@ -630,20 +784,28 @@ TODO libp2p handshake</p>
 <p>TODO: for protocols below, see config at https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/request_response/mod.rs#L192</p>
 <h3 id="chunk-fetching"><a class="header" href="#chunk-fetching">Chunk fetching</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_chunk/1</code></p>
+<p>TODO</p>
 <h3 id="collation-fetching-v1"><a class="header" href="#collation-fetching-v1">Collation fetching v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_collation/1</code></p>
+<p>TODO</p>
 <h3 id="collation-fetching-v2"><a class="header" href="#collation-fetching-v2">Collation fetching v2</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_collation/2</code></p>
+<p>TODO</p>
 <h3 id="pov-fetching"><a class="header" href="#pov-fetching">PoV fetching</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_pov/1</code></p>
+<p>TODO</p>
 <h3 id="available-data-fetching"><a class="header" href="#available-data-fetching">Available data fetching</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_available_data/1</code></p>
+<p>TODO</p>
 <h3 id="statement-fetching"><a class="header" href="#statement-fetching">Statement fetching</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_statement/1</code></p>
+<p>TODO</p>
 <h3 id="dispute-sending"><a class="header" href="#dispute-sending">Dispute sending</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/send_dispute/1</code></p>
+<p>TODO</p>
 <h3 id="attested-candidate-request"><a class="header" href="#attested-candidate-request">Attested candidate request</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_attested_candidate/2</code></p>
+<p>TODO</p>
 <h2 id="notification-protocols"><a class="header" href="#notification-protocols">Notification protocols</a></h2>
 <h3 id="block-announces"><a class="header" href="#block-announces">Block announces</a></h3>
 <p>The format of the handshake is defined as:</p>
@@ -731,10 +893,13 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <p>TODO: catch-up response</p>
 <h3 id="validation-v1"><a class="header" href="#validation-v1">Validation v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/validation/1</code></p>
+<p>TODO</p>
 <h3 id="validation-v2"><a class="header" href="#validation-v2">Validation v2</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/validation/2</code></p>
+<p>TODO</p>
 <h3 id="collation-v1"><a class="header" href="#collation-v1">Collation v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/collation/1</code></p>
+<p>TODO</p>
 <h3 id="collation-v2"><a class="header" href="#collation-v2">Collation v2</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/collation/2</code></p>
 <p>TODO: see https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/node/network/protocol/src
