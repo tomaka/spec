@@ -77,7 +77,7 @@ A *Grandpa commit* or *Grandpa justification* can be **verified** by following t
 - Fail the verification if there exists an *autority public key* that isn't present in the *Grandpa validators set* of the parent of the target block.
 - Fail the verification if there exists two *authority public key*s that are equal.
 - Fail the verification if the number of precommits is strictly inferior to `length(Grandpa validators set(parent)) * 2 / 3 + 1`. TODO: not satisfied with equation like that
-- Fail the verification if any of the target block hash and number of any of the votes isn't equal or a descendant of the target block hash and number of the commit or justification.
+- Fail the verification if the target block hash/number of any of the votes isn't equal or a descendant of the target block hash/number of the commit/justification.
 - TODO verify signatures
 - TODO verify block ancestries
 

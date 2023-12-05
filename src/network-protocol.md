@@ -121,7 +121,7 @@ Where a **fragment** is defined as:
 | Field name         | Type      | Size (bytes)   |
 | ------------------ | --------- | -------------- |
 | Header | Block header | (variable) |
-| Justification | Justification | (variable) |
+| Justification | Grandpa justification TODO link | (variable) |
 
 TODO: what happens if block hash unknown
 
@@ -246,11 +246,15 @@ TODO: the proof can be missing if the remote refuses to answer, which is redunda
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/kad`
 
+The **request** is defined as:
+
+The **response** is defined as:
+
 Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.
 
-An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.
+The responder should make a reasonable effort to send back only multiaddresses that it thinks are reachable to itself. The responsing side should not try to determine whether a multiaddress will be reachable by the requester.
 
-The requesting side should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose **PeerId** is different from the one indicated.
+The requester should be aware of the fact that the list of multiaddresses can't be trusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose **PeerId** is different from the one indicated.
 
 > **Note**: This protocol is identical to the Kademlia protocol of the libp2p library, apart from the protocol name which differs.
 
@@ -260,11 +264,44 @@ TODO: for protocols below, see config at https://github.com/paritytech/polkadot-
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_chunk/1`
 
+The **request** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Candidate hash | Bytes | 32 |
+| Validator index | Little-endian unsigned integer | 4 |
+
+The **response** is defined as one of:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x0 | 1 |
+| Size of chunk | SCALE-compact-encoded unsigned integer | (variable) |
+| Chunk | Bytes | *Size of chunk* |
+| Proof | Merkle proof | (variable) |
+
+TODO: Merkle proof is a Vec<Vec<u8>>, make sure to define that properly in state.md
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x1 | 1 |
+
 TODO
 
 ### Collation fetching v1
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_collation/1`
+
+The **request** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Relay parent | Bytes | 32 |
+| Para Id | Little-endian unsigned integer | 4 |
+
+The **response** is defined as:
+
+https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L102
 
 TODO
 
@@ -272,11 +309,33 @@ TODO
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_collation/2`
 
+The **request** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Relay parent | Bytes | 32 |
+| Para Id | Little-endian unsigned integer | 4 |
+| Candidate hash | Bytes | 32 |
+
+The **response** is defined as:
+
+https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L102 (same as v1)
+
 TODO
 
 ### PoV fetching
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_pov/1`
+
+The **request** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Candidate hash | Bytes | 32 |
+
+The **response** is defined as:
+
+https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L122
 
 TODO
 
@@ -284,11 +343,32 @@ TODO
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_available_data/1`
 
+The **request** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Candidate hash | Bytes | 32 |
+
+The **response** is defined as:
+
+https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L145
+
 TODO
 
 ### Statement fetching
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_statement/1`
+
+The **request** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Relay parent | Bytes | 32 |
+| Candidate hash | Bytes | 32 |
+
+The **response** is defined as:
+
+https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L183
 
 TODO
 
@@ -296,11 +376,32 @@ TODO
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/send_dispute/1`
 
+The **request** is defined as:
+
+https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/primitives/src/disputes/message.rs#L44
 TODO
+
+The **response** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x0 | 1 |
 
 ### Attested candidate request
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/req_attested_candidate/2`
+
+The **request** is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Candidate hash | Bytes | 32 |
+| Seconded in group mask | Bits field | (variable) |
+| Validated in group mask | Bits field | (variable) |
+
+The **response** is defined as:
+
+https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v2.rs#L46
 
 TODO
 
@@ -461,13 +562,31 @@ TODO
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/collation/1`
 
-TODO
+The format of a notification is one of the following:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x0 | 1 |
+| (constant) | 0x0 | 1 |
+| Collator public key | Bytes | 32 |
+| Para Id | Little-endian unsigned integer | 4 |
+| Collator signature | Bytes | 64 |
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | 0x0 | 1 |
+| (constant) | 0x1 | 1 |
+| Collation hash | Bytes | 32 |
+
+TODO: collation seconded https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/lib.rs#L581
+
+TODO explain protocol
 
 ### Collation v2
 
 **Protocol name**: `/<genesis-hash-and-fork-id>/collation/2`
 
-TODO: see https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/node/network/protocol/src
+TODO: see https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/lib.rs#L463
 https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/peer_set.rs#L283
 
 ## Other
