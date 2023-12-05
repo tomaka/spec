@@ -518,7 +518,7 @@ https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b7
 <li>Fail the verification if there exists an <em>autority public key</em> that isn't present in the <em>Grandpa validators set</em> of the parent of the target block.</li>
 <li>Fail the verification if there exists two <em>authority public key</em>s that are equal.</li>
 <li>Fail the verification if the number of precommits is strictly inferior to <code>length(Grandpa validators set(parent)) * 2 / 3 + 1</code>. TODO: not satisfied with equation like that</li>
-<li>Fail the verification if any of the target block hash and number of any of the votes isn't equal or a descendant of the target block hash and number of the commit or justification.</li>
+<li>Fail the verification if the target block hash/number of any of the votes isn't equal or a descendant of the target block hash/number of the commit/justification.</li>
 <li>TODO verify signatures</li>
 <li>TODO verify block ancestries</li>
 </ul>
@@ -747,7 +747,7 @@ message BlockData {
 <p>Where a <strong>fragment</strong> is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>Header</td><td>Block header</td><td>(variable)</td></tr>
-<tr><td>Justification</td><td>Justification</td><td>(variable)</td></tr>
+<tr><td>Justification</td><td>Grandpa justification TODO link</td><td>(variable)</td></tr>
 </tbody></table>
 <p>TODO: what happens if block hash unknown</p>
 <h3 id="state-1"><a class="header" href="#state-1">State</a></h3>
@@ -850,36 +850,102 @@ message RemoteReadResponse {
 TODO: the proof can be missing if the remote refuses to answer, which is redundant with the closing of the substream, maybe clean this with an RFC</p>
 <h3 id="kademlia"><a class="header" href="#kademlia">Kademlia</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/kad</code></p>
+<p>The <strong>request</strong> is defined as:</p>
+<p>The <strong>response</strong> is defined as:</p>
 <p>Invalid multiaddresses should be ignored. Implementations should not consider the entire response as invalid just because one multiaddress is invalid.</p>
-<p>An implementation of the responsing side should make a reasonable effort to send back only multiaddresses that it thinks are reachable to it.</p>
-<p>The requesting side should be aware of the fact that the list of multiaddresses can't be untrusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
+<p>The responder should make a reasonable effort to send back only multiaddresses that it thinks are reachable to itself. The responsing side should not try to determine whether a multiaddress will be reachable by the requester.</p>
+<p>The requester should be aware of the fact that the list of multiaddresses can't be trusted. A multiaddress might be unreachable, point to a non-conforming implementation, or point to an implementation whose <strong>PeerId</strong> is different from the one indicated.</p>
 <blockquote>
 <p><strong>Note</strong>: This protocol is identical to the Kademlia protocol of the libp2p library, apart from the protocol name which differs.</p>
 </blockquote>
 <p>TODO: for protocols below, see config at https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/request_response/mod.rs#L192</p>
 <h3 id="chunk-fetching"><a class="header" href="#chunk-fetching">Chunk fetching</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_chunk/1</code></p>
+<p>The <strong>request</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Candidate hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Validator index</td><td>Little-endian unsigned integer</td><td>4</td></tr>
+</tbody></table>
+<p>The <strong>response</strong> is defined as one of:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
+<tr><td>Size of chunk</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Chunk</td><td>Bytes</td><td><em>Size of chunk</em></td></tr>
+<tr><td>Proof</td><td>Merkle proof</td><td>(variable)</td></tr>
+</tbody></table>
+<p>TODO: Merkle proof is a Vec&lt;Vec<u8>&gt;, make sure to define that properly in state.md</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x1</td><td>1</td></tr>
+</tbody></table>
 <p>TODO</p>
 <h3 id="collation-fetching-v1"><a class="header" href="#collation-fetching-v1">Collation fetching v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_collation/1</code></p>
+<p>The <strong>request</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Relay parent</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Para Id</td><td>Little-endian unsigned integer</td><td>4</td></tr>
+</tbody></table>
+<p>The <strong>response</strong> is defined as:</p>
+<p>https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L102</p>
 <p>TODO</p>
 <h3 id="collation-fetching-v2"><a class="header" href="#collation-fetching-v2">Collation fetching v2</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_collation/2</code></p>
+<p>The <strong>request</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Relay parent</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Para Id</td><td>Little-endian unsigned integer</td><td>4</td></tr>
+<tr><td>Candidate hash</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<p>The <strong>response</strong> is defined as:</p>
+<p>https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L102 (same as v1)</p>
 <p>TODO</p>
 <h3 id="pov-fetching"><a class="header" href="#pov-fetching">PoV fetching</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_pov/1</code></p>
+<p>The <strong>request</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Candidate hash</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<p>The <strong>response</strong> is defined as:</p>
+<p>https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L122</p>
 <p>TODO</p>
 <h3 id="available-data-fetching"><a class="header" href="#available-data-fetching">Available data fetching</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_available_data/1</code></p>
+<p>The <strong>request</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Candidate hash</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<p>The <strong>response</strong> is defined as:</p>
+<p>https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L145</p>
 <p>TODO</p>
 <h3 id="statement-fetching"><a class="header" href="#statement-fetching">Statement fetching</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_statement/1</code></p>
+<p>The <strong>request</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Relay parent</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Candidate hash</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<p>The <strong>response</strong> is defined as:</p>
+<p>https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v1.rs#L183</p>
 <p>TODO</p>
 <h3 id="dispute-sending"><a class="header" href="#dispute-sending">Dispute sending</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/send_dispute/1</code></p>
-<p>TODO</p>
+<p>The <strong>request</strong> is defined as:</p>
+<p>https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/primitives/src/disputes/message.rs#L44
+TODO</p>
+<p>The <strong>response</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
+</tbody></table>
 <h3 id="attested-candidate-request"><a class="header" href="#attested-candidate-request">Attested candidate request</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/req_attested_candidate/2</code></p>
+<p>The <strong>request</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Candidate hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Seconded in group mask</td><td>Bits field</td><td>(variable)</td></tr>
+<tr><td>Validated in group mask</td><td>Bits field</td><td>(variable)</td></tr>
+</tbody></table>
+<p>The <strong>response</strong> is defined as:</p>
+<p>https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/request_response/v2.rs#L46</p>
 <p>TODO</p>
 <h2 id="notification-protocols"><a class="header" href="#notification-protocols">Notification protocols</a></h2>
 <h3 id="block-announces"><a class="header" href="#block-announces">Block announces</a></h3>
@@ -996,10 +1062,24 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <p>TODO</p>
 <h3 id="collation-v1"><a class="header" href="#collation-v1">Collation v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/collation/1</code></p>
-<p>TODO</p>
+<p>The format of a notification is one of the following:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
+<tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
+<tr><td>Collator public key</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Para Id</td><td>Little-endian unsigned integer</td><td>4</td></tr>
+<tr><td>Collator signature</td><td>Bytes</td><td>64</td></tr>
+</tbody></table>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
+<tr><td>(constant)</td><td>0x1</td><td>1</td></tr>
+<tr><td>Collation hash</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<p>TODO: collation seconded https://github.com/paritytech/polkadot-sdk/blob/9a111fdc6ed81506033efe29920161f55a34a151/polkadot/node/network/protocol/src/lib.rs#L581</p>
+<p>TODO explain protocol</p>
 <h3 id="collation-v2"><a class="header" href="#collation-v2">Collation v2</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/collation/2</code></p>
-<p>TODO: see https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/node/network/protocol/src
+<p>TODO: see https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/lib.rs#L463
 https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/node/network/protocol/src/peer_set.rs#L283</p>
 <h2 id="other-1"><a class="header" href="#other-1">Other</a></h2>
 <h3 id="ping"><a class="header" href="#ping">Ping</a></h3>

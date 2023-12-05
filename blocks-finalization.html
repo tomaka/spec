@@ -202,7 +202,7 @@
 <li>Fail the verification if there exists an <em>autority public key</em> that isn't present in the <em>Grandpa validators set</em> of the parent of the target block.</li>
 <li>Fail the verification if there exists two <em>authority public key</em>s that are equal.</li>
 <li>Fail the verification if the number of precommits is strictly inferior to <code>length(Grandpa validators set(parent)) * 2 / 3 + 1</code>. TODO: not satisfied with equation like that</li>
-<li>Fail the verification if any of the target block hash and number of any of the votes isn't equal or a descendant of the target block hash and number of the commit or justification.</li>
+<li>Fail the verification if the target block hash/number of any of the votes isn't equal or a descendant of the target block hash/number of the commit/justification.</li>
 <li>TODO verify signatures</li>
 <li>TODO verify block ancestries</li>
 </ul>
