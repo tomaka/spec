@@ -159,7 +159,7 @@
 <tr><td>State root</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Extrinsics root</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Number of digest items</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>Digest items (zero or more)</td><td>Digest item</td><td>(variable)</td></tr>
+<tr><td>(repeated) Digest items</td><td>Digest item repeated <em>Number of digest items</em> times</td><td>(variable)</td></tr>
 </tbody></table>
 <h3 id="digest-item"><a class="header" href="#digest-item">Digest item</a></h3>
 <p>A digest item is defined as one of:</p>
@@ -170,7 +170,7 @@
 <tr><td>(constant)</td><td>ASCII string <code>aura</code></td><td>4</td></tr>
 <tr><td>(constant)</td><td>0x1</td><td>1</td></tr>
 <tr><td>Number of authorities</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>Authorities (zero or more)</td><td>Bytes</td><td>(32 times <code>Number of authorities</code>)</td></tr>
+<tr><td>(repeated) Authorities</td><td>Bytes repeated <em>Number of authorities</em> times</td><td>32 times <code>Number of authorities</code></td></tr>
 </tbody></table>
 <h4 id="aura-consensus-authority-disabled"><a class="header" href="#aura-consensus-authority-disabled">Aura consensus authority disabled</a></h4>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>

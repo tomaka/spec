@@ -151,7 +151,7 @@
 </ul>
 <p>TODO make it clear that for forced changes the block must have been executed, otherwise security issue</p>
 <blockquote>
-<p><strong>Note</strong>: The <em>Grandpa validators set</em> of a block corresponds to the list of validators that can finalize blocks that are children of the block in question. The block itself must be finalized by a validator of the validators set of the parent block.</p>
+<p><strong>Note</strong>: The <em>Grandpa validators set</em> of a block corresponds to the list of validators that can finalize blocks that are children of the block in question. The block itself must be finalized by validators of the validators set of the parent block.</p>
 </blockquote>
 <p>The <strong>validators set id</strong> of a block can be determined through:</p>
 <p>TODO</p>
@@ -164,9 +164,9 @@
 <tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
 <tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote (see below) repeated <em>Number of precommits</em> times</td><td>36 or 40 times <em>Number of precommits</em> TODO</td></tr>
 <tr><td>Number of authentication data</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Authentication data</td><td>Authentication data</td><td><em>Number of authentication data</em> * 96</td></tr>
+<tr><td>(repeated) Authentication data</td><td>Authentication data (see below) repeated <em>Number of authentication data</em> times</td><td>96 times <em>Number of authentication data</em></td></tr>
 </tbody></table>
 <p>Where a <strong>Vote</strong> is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
@@ -185,9 +185,9 @@
 <tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
 <tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote (see below) repeated <em>Number of precommits</em> times</td><td>36 or 40 times <em>Number of precommits</em> TODO</td></tr>
 <tr><td>Number of vote ancestries</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Vote ancestries</td><td>Block header</td><td><em>Number of vote ancestries</em> * (variable)</td></tr>
+<tr><td>(repeated) Vote ancestries</td><td>Block header repeated <em>Number of vote ancestries</em> times</td><td>(variable)</td></tr>
 </tbody></table>
 <p>Where a <strong>Vote</strong> is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>

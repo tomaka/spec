@@ -274,7 +274,7 @@ The implementation then allocates a 32 bytes buffer using the same mechanism as 
 <tr><td>State root</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Extrinsics root</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Number of digest items</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>Digest items (zero or more)</td><td>Digest item</td><td>(variable)</td></tr>
+<tr><td>(repeated) Digest items</td><td>Digest item repeated <em>Number of digest items</em> times</td><td>(variable)</td></tr>
 </tbody></table>
 <h3 id="digest-item"><a class="header" href="#digest-item">Digest item</a></h3>
 <p>A digest item is defined as one of:</p>
@@ -285,7 +285,7 @@ The implementation then allocates a 32 bytes buffer using the same mechanism as 
 <tr><td>(constant)</td><td>ASCII string <code>aura</code></td><td>4</td></tr>
 <tr><td>(constant)</td><td>0x1</td><td>1</td></tr>
 <tr><td>Number of authorities</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>Authorities (zero or more)</td><td>Bytes</td><td>(32 times <code>Number of authorities</code>)</td></tr>
+<tr><td>(repeated) Authorities</td><td>Bytes repeated <em>Number of authorities</em> times</td><td>32 times <code>Number of authorities</code></td></tr>
 </tbody></table>
 <h4 id="aura-consensus-authority-disabled"><a class="header" href="#aura-consensus-authority-disabled">Aura consensus authority disabled</a></h4>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
@@ -467,7 +467,7 @@ https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b7
 </ul>
 <p>TODO make it clear that for forced changes the block must have been executed, otherwise security issue</p>
 <blockquote>
-<p><strong>Note</strong>: The <em>Grandpa validators set</em> of a block corresponds to the list of validators that can finalize blocks that are children of the block in question. The block itself must be finalized by a validator of the validators set of the parent block.</p>
+<p><strong>Note</strong>: The <em>Grandpa validators set</em> of a block corresponds to the list of validators that can finalize blocks that are children of the block in question. The block itself must be finalized by validators of the validators set of the parent block.</p>
 </blockquote>
 <p>The <strong>validators set id</strong> of a block can be determined through:</p>
 <p>TODO</p>
@@ -480,9 +480,9 @@ https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b7
 <tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
 <tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote (see below) repeated <em>Number of precommits</em> times</td><td>36 or 40 times <em>Number of precommits</em> TODO</td></tr>
 <tr><td>Number of authentication data</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Authentication data</td><td>Authentication data</td><td><em>Number of authentication data</em> * 96</td></tr>
+<tr><td>(repeated) Authentication data</td><td>Authentication data (see below) repeated <em>Number of authentication data</em> times</td><td>96 times <em>Number of authentication data</em></td></tr>
 </tbody></table>
 <p>Where a <strong>Vote</strong> is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
@@ -501,9 +501,9 @@ https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b7
 <tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
 <tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote (see below) repeated <em>Number of precommits</em> times</td><td>36 or 40 times <em>Number of precommits</em> TODO</td></tr>
 <tr><td>Number of vote ancestries</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Vote ancestries</td><td>Block header</td><td><em>Number of vote ancestries</em> * (variable)</td></tr>
+<tr><td>(repeated) Vote ancestries</td><td>Block header repeated <em>Number of vote ancestries</em> times</td><td>(variable)</td></tr>
 </tbody></table>
 <p>Where a <strong>Vote</strong> is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
@@ -741,7 +741,7 @@ message BlockData {
 <p>The <strong>response</strong> is as follows:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>Number of fragments</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Fragment</td><td>Fragment</td><td>(variable)</td></tr>
+<tr><td>(repeated) Fragment</td><td>Fragment repeated <em>Number of fragments</em> times</td><td>(variable)</td></tr>
 <tr><td>Is finished</td><td>Boolean (<code>true</code> is any non-zero value)</td><td>1</td></tr>
 </tbody></table>
 <p>Where a <strong>fragment</strong> is defined as:</p>
@@ -917,7 +917,7 @@ TODO: the proof can be missing if the remote refuses to answer, which is redunda
 <p>The format of a notification is:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>Number of transactions</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Transaction</td><td>Bytes</td><td>(variable)</td></tr>
+<tr><td>(repeated) Transaction</td><td>Bytes repeated <em>Number of transactions</em> times</td><td>(variable)</td></tr>
 </tbody></table>
 <p>TODO: transactions aren't decodable, thus this table is meh, would be fixed by https://github.com/polkadot-fellows/RFCs/pull/56</p>
 <p>Implementers are encouraged to send only one transaction per notification.
@@ -977,9 +977,9 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
 <tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
 <tr><td>Number of prevotes</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Prevotes</td><td>Vote</td><td><em>Number of prevotes</em> * 36 or 40 TODO</td></tr>
+<tr><td>(repeated) Prevotes</td><td>Vote (see below) repeated <em>Number of prevotes</em> times</td><td>36 or 40 times <em>Number of prevotes</em> TODO</td></tr>
 <tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Precommits</td><td>Vote</td><td><em>Number of precommits</em> * 36 or 40 TODO</td></tr>
+<tr><td>(repeated) Precommits</td><td>Vote (see below) repeated <em>Number of precommits</em> times</td><td>36 or 40 times <em>Number of precommits</em>  TODO</td></tr>
 <tr><td>Base block hash</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Base block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
 </tbody></table>
