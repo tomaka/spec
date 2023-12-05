@@ -222,6 +222,7 @@ If this assumption happened to be violated, the chain can be declared broken. Br
 <p>A <em>block header</em> is <strong>finalizable</strong> if all of the following is true:</p>
 <ul>
 <li>Its parent block is <em>finalized</em> or <em>finalizable</em>.</li>
+<li>If the <em>validators set id</em> of the block is different from the <em>validators set id</em> of its parent block, its parent block must be <em>finalized</em>.</li>
 <li>TODO: parachain stuff https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</li>
 </ul>
 <h2 id="grandpa-rounds"><a class="header" href="#grandpa-rounds">Grandpa rounds</a></h2>
@@ -250,11 +251,10 @@ TODO: define more formally</p>
 <li>The <em>estimate</em> is strictly inferior to the <em>prevotes ghost</em>.</li>
 <li>It becomes impossible for the <em>estimate</em> to become strictly superior to the <em>prevotes ghost</em>.</li>
 </ul>
-<h3 id="finality-update"><a class="header" href="#finality-update">Finality update</a></h3>
-<p>The <strong>updated finalized block</strong> is defined as:</p>
-<ul>
-<li></li>
-</ul>
+<p>A <em>completable</em> round can be turned into a <em>Grandpa commit</em> or a <em>Grandpa justification</em> whose <em>target block hash</em> and <em>target block number</em> is the <em>estimate</em> of the round.</p>
+<blockquote>
+<p><strong>Note</strong>: In other words, once a round is completable, its estimate can be finalized, assuming that .</p>
+</blockquote>
 
                     </main>
 
