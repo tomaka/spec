@@ -2,7 +2,7 @@
 
 ## Grandpa validators set
 
-Given a *block header*, the **Grandpa validators set** can be determined through the following process:
+Given a *block header*, the **grandpa validators set** can be determined through the following process:
 
 TODO finish
 
@@ -104,23 +104,31 @@ A *block header* is **finalizable** if all of the following is true:
 - If the *validators set id* of the block is different from the *validators set id* of its parent block, its parent block must be *finalized*.
 - TODO: parachain stuff https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html
 
-## Grandpa rounds
+## Grandpa round
 
-Given a set of prevote *block headers*, a set of precommit *block headers*, and a *number of validators*:
+Given a *tree of blocks*, set of prevote *block headers* that are found in the tree, a set of precommit *block headers* that are found in the tree, and a *number of validators*:
 
-### Supermajority threshold
+TODO: explain that votes must have a valid signature
 
-The **supermajority threshold** is defined as `(number of validators - number of validators that have equivocated) * 2 / 3 + 1`.
+TODO: associate prevotes and precommits to a public key and a round number
 
-### Prevotes ghost
+The **active validators set** is defined as the *grandpa validators set* of the *latest finalized block* of that tree.
+
+The **primary validator** is defined as the public key in the *active validators set* whose index is equal to `round number modulo length(active validators set)`.
+
+The **equivocating validators** are the set of public keys associated to at least two different prevotes or at least two different precommits.
+
+The **supermajority threshold** is defined as `(length(active validators set) - length(equivocating validators)) * 2 / 3 + 1`.
 
 The **prevotes ghost** is defined as the highest block header in the prevotes that has a supermajority of the threshold.
 If the number of prevote *block headers* is too small, the prevotes ghost is undefined.
 TODO explain better
 
-> **Note**: As more block headers are added, the prevotes ghost can only ever move to higher blocks.
+> **Note**: As more block headers are added to the set of prevotes, the prevotes ghost can only ever move to higher blocks.
 
-### Estimate
+The **precommits ghost** is defined as the highest block header in the precommits that has a supermajority of the threshold.
+If the number of prevote *block headers* is too small, the precommits ghost is undefined.
+TODO explain better
 
 The **estimate** is defined as the precommit block header inferior or equal to the *prevotes ghost* that can potentially achieve a supermajority of the threshold.
 TODO: define more formally
@@ -129,16 +137,16 @@ TODO: define more formally
 
 > **Note**: As more precommit block headers are added to the set, the estimate can only ever move to lower blocks. As more prevote block headers are added to the set, the estimate can only ever move to higher blocks.
 
-### Completable
-
 A round is **completable** if either:
 
 - The *estimate* is strictly inferior to the *prevotes ghost*.
-- It becomes impossible for the *estimate* to become strictly superior to the *prevotes ghost*.
+- It becomes impossible for the *estimate* to become strictly superior to the *prevotes ghost*. TODO: define more formally?
 
-A *completable* round can be turned into a *Grandpa commit* or a *Grandpa justification* whose *target block hash* and *target block number* is the *estimate* of the round.
+> **Note**: A completable round necessarily has a defined prevotes ghost.
 
-> **Note**: In other words, once a round is completable, its estimate can be finalized, assuming that .
+A *completable* round can be turned into a *Grandpa commit* or a *Grandpa justification* whose *target block hash* and *target block number* is the *precommits ghost* of the round.
+
+> **Note**: In other words, once a round is completable, its precommits ghost can be finalized.
 
 TODO: once a round is completable, `round - 1` can be completely closed and all votes discarded (source: Alistair)
 TODO: this means that there are always 2 rounds running at any given time
