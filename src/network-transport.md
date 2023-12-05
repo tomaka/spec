@@ -32,5 +32,14 @@ TODO: https://github.com/hashicorp/yamux/blob/master/spec.md
 
 ## Supported protocols
 
-- TCP/IP
-- TCP/IP and WebSocket (secure or not)
+### TCP/IP
+
+In order to connect to a multiaddress of the format `/ip4/.../tcp/...`, `/ip4/.../tcp/.../ws`, `/ip4/.../tcp/.../tls/ws`, `/ip6/.../tcp/...`, `/ip6/.../tcp/.../ws`, or `/ip6/.../tcp/.../tls/ws`, an implementation must:
+
+- Open a TCP/IP connection to the given IP address and port.
+- (ony for multiaddresses ending with `/ws` or `/tls/ws`) Perform [a WebSocket (for `/ws`) or WebSocket secure (for `/tls/ws`)](https://datatracker.ietf.org/doc/html/rfc6455) handshake.
+- Perform a multistream-select negotiation for the protocol named `/noise`.
+- Perform a Noise protocol handshake.
+- Perform a multistream-select negotiation for the protocol named `/yamux/1.0.0`.
+
+Multiaddresses of the format `/ip4/.../tcp/.../wss` and `/ip6/.../tcp/.../wss` must also be supported and are equivalent to respectively `/ip4/.../tcp/.../tls/ws` and `/ip6/.../tcp/.../tls/ws`. These multiaddresses are deprecated and will be removed in the future.

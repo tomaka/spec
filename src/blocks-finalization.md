@@ -139,3 +139,6 @@ A round is **completable** if either:
 A *completable* round can be turned into a *Grandpa commit* or a *Grandpa justification* whose *target block hash* and *target block number* is the *estimate* of the round.
 
 > **Note**: In other words, once a round is completable, its estimate can be finalized, assuming that .
+
+TODO: once a round is completable, `round - 1` can be completely closed and all votes discarded (source: Alistair)
+TODO: this means that there are always 2 rounds running at any given time
