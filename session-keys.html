@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Kademlia</title>
+        <title>Session keys</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li><li class="chapter-item expanded "><a href="blocks-finalization.html"><strong aria-hidden="true">2.3.</strong> Blocks finalization</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html" class="active"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="session-keys.html"><strong aria-hidden="true">6.</strong> Session keys</a></li><li class="chapter-item expanded "><a href="requirements.html"><strong aria-hidden="true">7.</strong> Requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li><li class="chapter-item expanded "><a href="blocks-finalization.html"><strong aria-hidden="true">2.3.</strong> Blocks finalization</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="session-keys.html" class="active"><strong aria-hidden="true">6.</strong> Session keys</a></li><li class="chapter-item expanded "><a href="requirements.html"><strong aria-hidden="true">7.</strong> Requirements</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -142,18 +142,39 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="kademlia"><a class="header" href="#kademlia">Kademlia</a></h1>
+                        <h1 id="session-keys"><a class="header" href="#session-keys">Session keys</a></h1>
+<p>TODO: https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/substrate/primitives/core/src/crypto.rs#L1145</p>
+<h2 id="aura-and-babe"><a class="header" href="#aura-and-babe">Aura and Babe</a></h2>
+<p>In order to handle an Aura or Babe key, an implementation must:</p>
+<ul>
+<li>Try as hard as possible to gather blocks from the other peers.</li>
+<li>Try to author blocks.</li>
+<li>Whenever it successfully authors a block, send a block announce notification to other peers about this block.</li>
+<li>Serve the blocks it successfully authors through the <code>sync</code> protocol.</li>
+</ul>
+<h2 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h2>
+<p>In order to handle a Grandpa key, an implementation must:</p>
+<ul>
+<li>Try as hard as possible to gather blocks from the other peers.</li>
+<li>Try as hard as possible to gather grandpa votes from the other peers.</li>
+<li>TODO: finish</li>
+</ul>
+<p>The <strong>Grandpa voter</strong> algorithm is defined as:</p>
+<ul>
+<li>If the public key corresponding to the Grandpa key is <em>not</em> equal to the primary, wait for either 2 seconds or the round is completable, whatever comes first.</li>
+</ul>
 <h2 id="authority-discovery"><a class="header" href="#authority-discovery">Authority discovery</a></h2>
+<p>TODO</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="network-protocol.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="network-kad.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="session-keys.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="requirements.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -163,11 +184,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="network-protocol.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="network-kad.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="session-keys.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="requirements.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
