@@ -10,7 +10,7 @@ TODO finish
 
 TODO make it clear that for forced changes the block must have been executed, otherwise security issue
 
-> **Note**: The *Grandpa validators set* of a block corresponds to the list of validators that can finalize blocks that are children of the block in question. The block itself must be finalized by a validator of the validators set of the parent block.
+> **Note**: The *Grandpa validators set* of a block corresponds to the list of validators that can finalize blocks that are children of the block in question. The block itself must be finalized by validators of the validators set of the parent block.
 
 The **validators set id** of a block can be determined through:
 
@@ -29,9 +29,9 @@ A **Grandpa commit** is defined as:
 | Target block hash | Bytes | 32 |
 | Target block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
 | Number of precommits | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Precommits | Vote | *Number of precommits* * 36 or 40 TODO |
+| (repeated) Precommits | Vote (see below) repeated *Number of precommits* times | 36 or 40 times *Number of precommits* TODO |
 | Number of authentication data | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Authentication data | Authentication data | *Number of authentication data* * 96 |
+| (repeated) Authentication data | Authentication data (see below) repeated *Number of authentication data* times | 96 times *Number of authentication data* |
 
 Where a **Vote** is defined as:
 
@@ -57,9 +57,9 @@ A **Grandpa justification** is defined as:
 | Target block hash | Bytes | 32 |
 | Target block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
 | Number of precommits | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Precommits | Vote | *Number of precommits* * 36 or 40 TODO |
+| (repeated) Precommits | Vote (see below) repeated *Number of precommits* times | 36 or 40 times *Number of precommits* TODO |
 | Number of vote ancestries | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Vote ancestries | Block header | *Number of vote ancestries* * (variable) |
+| (repeated) Vote ancestries | Block header repeated *Number of vote ancestries* times | (variable) |
 
 Where a **Vote** is defined as:
 

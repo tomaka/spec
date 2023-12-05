@@ -113,7 +113,7 @@ The **response** is as follows:
 | Field name         | Type      | Size (bytes)   |
 | ------------------ | --------- | -------------- |
 | Number of fragments | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Fragment | Fragment | (variable) |
+| (repeated) Fragment | Fragment repeated *Number of fragments* times | (variable) |
 | Is finished | Boolean (`true` is any non-zero value) | 1 |
 
 Where a **fragment** is defined as:
@@ -353,7 +353,7 @@ The format of a notification is:
 | Field name         | Type      | Size (bytes)   |
 | ------------------ | --------- | -------------- |
 | Number of transactions | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Transaction | Bytes | (variable) |
+| (repeated) Transaction | Bytes repeated *Number of transactions* times | (variable) |
 
 TODO: transactions aren't decodable, thus this table is meh, would be fixed by https://github.com/polkadot-fellows/RFCs/pull/56
 
@@ -432,9 +432,9 @@ TODO: according to smoldot the set id is before the round number, whereas everyw
 | Set ID | Little endian unsigned integer | 8 |
 | Round number | Little endian unsigned integer | 8 |
 | Number of prevotes | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Prevotes | Vote | *Number of prevotes* * 36 or 40 TODO |
+| (repeated) Prevotes | Vote (see below) repeated *Number of prevotes* times | 36 or 40 times *Number of prevotes* TODO |
 | Number of precommits | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Precommits | Vote | *Number of precommits* * 36 or 40 TODO |
+| (repeated) Precommits | Vote (see below) repeated *Number of precommits* times | 36 or 40 times *Number of precommits*  TODO |
 | Base block hash | Bytes | 32 |
 | Base block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
 

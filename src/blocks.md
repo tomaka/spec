@@ -20,7 +20,7 @@ A *block header* is defined as:
 | State root | Bytes | 32 |
 | Extrinsics root | Bytes | 32 |
 | Number of digest items | SCALE-compact-encoded unsigned integer | (variable) |
-| Digest items (zero or more) | Digest item | (variable) |
+| (repeated) Digest items | Digest item repeated *Number of digest items* times | (variable) |
 
 ### Digest item
 
@@ -36,7 +36,7 @@ TODO: finish here
 | (constant) | ASCII string `aura` | 4 |
 | (constant) | 0x1 | 1 |
 | Number of authorities | SCALE-compact-encoded unsigned integer | (variable) |
-| Authorities (zero or more) | Bytes | (32 times `Number of authorities`) |
+| (repeated) Authorities | Bytes repeated *Number of authorities* times | 32 times `Number of authorities` |
 
 #### Aura consensus authority disabled
 
