@@ -199,23 +199,30 @@
 <h3 id="verification"><a class="header" href="#verification">Verification</a></h3>
 <p>A <em>Grandpa commit</em> or <em>Grandpa justification</em> can be <strong>verified</strong> by following these steps:</p>
 <ul>
-<li>TODO</li>
+<li>Fail the verification if there exists an <em>autority public key</em> that isn't present in the <em>Grandpa validators set</em> of the parent of the target block.</li>
+<li>Fail the verification if there exists two <em>authority public key</em>s that are equal.</li>
+<li>Fail the verification if the number of precommits is strictly inferior to <code>length(Grandpa validators set(parent)) * 2 / 3 + 1</code>. TODO: not satisfied with equation like that</li>
+<li>Fail the verification if any of the target block hash and number of any of the votes isn't equal or a descendant of the target block hash and number of the commit or justification.</li>
+<li>TODO verify signatures</li>
+<li>TODO verify block ancestries</li>
 </ul>
 <h2 id="finalized-block"><a class="header" href="#finalized-block">Finalized block</a></h2>
-<p>Given a <em>tree of blocks</em>, a set of <em>verified Grandpa commit</em>s, and a set of <em>verified Grandpa justification</em>s, the <strong>latest finalized block</strong> is defined as the block with the highest <em>block number</em> TODO.</p>
-<p>An implementation can assume that when it adds a new <em>Grandpa commit</em> or <em>Grandpa justification</em> to the set, the <em>latest finalized block</em> can only ever become a descendant of the previous latest finalized block. TODO unclear</p>
+<p>Given a <em>tree of blocks</em>, a set of <em>verified Grandpa commit</em>s, and a set of <em>verified Grandpa justification</em>s, the <strong>latest finalized block</strong> is defined as the block with the highest <em>block number</em> TODO explain better</p>
+<p>TODO: explain that there must be no gap in the commits and justifications ^ </p>
+<p>An implementation can assume that when it adds a new <em>Grandpa commit</em> or <em>Grandpa justification</em> to the set, the <em>latest finalized block</em> can only ever become a descendant of the previous <em>latest finalized block</em>. TODO unclear
+If this assumption happened to be violated, the chain can be declared broken. Broken chains are out of scope of this specification. TODO: explain this somewhere this</p>
 <blockquote>
-<p><strong>Note</strong>: Thanks to this assumption, an implementation generally only needs to keep track of the charateristics of the latest finalized block and its descendants. Any block that isn't the latest finalized block or one of its descendants may be discarded.</p>
+<p><strong>Note</strong>: Thanks to this assumption, many of the block characteristics that an implementation typically puts in a cache (such as the Grandpa validators set) only need to be tracked for the latest finalized block and its descendants.</p>
 </blockquote>
 <p>A block is <strong>finalized</strong> either if it is equal to the <em>latest finalized block</em>, or if it is the parent of a <em>finalized</em> block.</p>
 <blockquote>
 <p><strong>Note</strong>: In other words, the <em>latest finalized block</em> and all of its ancestors (and no other block besides them) are <em>finalized</em>.</p>
 </blockquote>
 <h2 id="finalizable-block"><a class="header" href="#finalizable-block">Finalizable block</a></h2>
-<p>A <em>block header</em> is <strong>finalizable</strong> if:</p>
+<p>A <em>block header</em> is <strong>finalizable</strong> if all of the following is true:</p>
 <ul>
 <li>Its parent block is <em>finalized</em> or <em>finalizable</em>.</li>
-<li>TODO: parachain stuff</li>
+<li>TODO: parachain stuff https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</li>
 </ul>
 <h2 id="grandpa-rounds"><a class="header" href="#grandpa-rounds">Grandpa rounds</a></h2>
 <p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em>, and a <em>number of validators</em>:</p>
