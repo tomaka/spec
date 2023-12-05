@@ -460,7 +460,7 @@ This constraint is necessary in order to guarantee that no two blocks using the 
 https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/polkadot/primitives/src/v6/mod.rs#L1429</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="blocks-finalization"><a class="header" href="#blocks-finalization">Blocks finalization</a></h1>
 <h2 id="grandpa-validators-set"><a class="header" href="#grandpa-validators-set">Grandpa validators set</a></h2>
-<p>Given a <em>block header</em>, the <strong>Grandpa validators set</strong> can be determined through the following process:</p>
+<p>Given a <em>block header</em>, the <strong>grandpa validators set</strong> can be determined through the following process:</p>
 <p>TODO finish</p>
 <ul>
 <li>Find the first ancestor that has a Grandpa digest item.</li>
@@ -541,18 +541,23 @@ If this assumption happened to be violated, the chain can be declared broken. Br
 <li>If the <em>validators set id</em> of the block is different from the <em>validators set id</em> of its parent block, its parent block must be <em>finalized</em>.</li>
 <li>TODO: parachain stuff https://paritytech.github.io/polkadot-sdk/book/protocol-chain-selection.html</li>
 </ul>
-<h2 id="grandpa-rounds"><a class="header" href="#grandpa-rounds">Grandpa rounds</a></h2>
-<p>Given a set of prevote <em>block headers</em>, a set of precommit <em>block headers</em>, and a <em>number of validators</em>:</p>
-<h3 id="supermajority-threshold"><a class="header" href="#supermajority-threshold">Supermajority threshold</a></h3>
-<p>The <strong>supermajority threshold</strong> is defined as <code>(number of validators - number of validators that have equivocated) * 2 / 3 + 1</code>.</p>
-<h3 id="prevotes-ghost"><a class="header" href="#prevotes-ghost">Prevotes ghost</a></h3>
+<h2 id="grandpa-round"><a class="header" href="#grandpa-round">Grandpa round</a></h2>
+<p>Given a <em>tree of blocks</em>, set of prevote <em>block headers</em> that are found in the tree, a set of precommit <em>block headers</em> that are found in the tree, and a <em>number of validators</em>:</p>
+<p>TODO: explain that votes must have a valid signature</p>
+<p>TODO: associate prevotes and precommits to a public key and a round number</p>
+<p>The <strong>active validators set</strong> is defined as the <em>grandpa validators set</em> of the <em>latest finalized block</em> of that tree.</p>
+<p>The <strong>primary validator</strong> is defined as the public key in the <em>active validators set</em> whose index is equal to <code>round number modulo length(active validators set)</code>.</p>
+<p>The <strong>equivocating validators</strong> are the set of public keys associated to at least two different prevotes or at least two different precommits.</p>
+<p>The <strong>supermajority threshold</strong> is defined as <code>(length(active validators set) - length(equivocating validators)) * 2 / 3 + 1</code>.</p>
 <p>The <strong>prevotes ghost</strong> is defined as the highest block header in the prevotes that has a supermajority of the threshold.
 If the number of prevote <em>block headers</em> is too small, the prevotes ghost is undefined.
 TODO explain better</p>
 <blockquote>
-<p><strong>Note</strong>: As more block headers are added, the prevotes ghost can only ever move to higher blocks.</p>
+<p><strong>Note</strong>: As more block headers are added to the set of prevotes, the prevotes ghost can only ever move to higher blocks.</p>
 </blockquote>
-<h3 id="estimate"><a class="header" href="#estimate">Estimate</a></h3>
+<p>The <strong>precommits ghost</strong> is defined as the highest block header in the precommits that has a supermajority of the threshold.
+If the number of prevote <em>block headers</em> is too small, the precommits ghost is undefined.
+TODO explain better</p>
 <p>The <strong>estimate</strong> is defined as the precommit block header inferior or equal to the <em>prevotes ghost</em> that can potentially achieve a supermajority of the threshold.
 TODO: define more formally</p>
 <blockquote>
@@ -561,15 +566,17 @@ TODO: define more formally</p>
 <blockquote>
 <p><strong>Note</strong>: As more precommit block headers are added to the set, the estimate can only ever move to lower blocks. As more prevote block headers are added to the set, the estimate can only ever move to higher blocks.</p>
 </blockquote>
-<h3 id="completable"><a class="header" href="#completable">Completable</a></h3>
 <p>A round is <strong>completable</strong> if either:</p>
 <ul>
 <li>The <em>estimate</em> is strictly inferior to the <em>prevotes ghost</em>.</li>
-<li>It becomes impossible for the <em>estimate</em> to become strictly superior to the <em>prevotes ghost</em>.</li>
+<li>It becomes impossible for the <em>estimate</em> to become strictly superior to the <em>prevotes ghost</em>. TODO: define more formally?</li>
 </ul>
-<p>A <em>completable</em> round can be turned into a <em>Grandpa commit</em> or a <em>Grandpa justification</em> whose <em>target block hash</em> and <em>target block number</em> is the <em>estimate</em> of the round.</p>
 <blockquote>
-<p><strong>Note</strong>: In other words, once a round is completable, its estimate can be finalized, assuming that .</p>
+<p><strong>Note</strong>: A completable round necessarily has a defined prevotes ghost.</p>
+</blockquote>
+<p>A <em>completable</em> round can be turned into a <em>Grandpa commit</em> or a <em>Grandpa justification</em> whose <em>target block hash</em> and <em>target block number</em> is the <em>precommits ghost</em> of the round.</p>
+<blockquote>
+<p><strong>Note</strong>: In other words, once a round is completable, its precommits ghost can be finalized.</p>
 </blockquote>
 <p>TODO: once a round is completable, <code>round - 1</code> can be completely closed and all votes discarded (source: Alistair)
 TODO: this means that there are always 2 rounds running at any given time</p>
