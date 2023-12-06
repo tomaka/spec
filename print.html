@@ -154,9 +154,12 @@
 Each key has a (potentially empty) value associated to it.</p>
 <p>The <strong>Merkle value of a trie</strong> is defined as:</p>
 <ul>
-<li>If the trie is not empty, the <strong>Merkle value of the trie node</strong> that serves as the common ancestor of all other trie nodes.</li>
-<li>If the trie is empty, it is equal to the hash of TODO</li>
+<li>If the trie is not empty, it is equal to the <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a> hash of the <em>trie node value</em> of the trie node that serves as the common ancestor of all other trie nodes.</li>
+<li>If the trie is empty, it is equal to the <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a> hash of a trie node value whose <em>Header</em> is equal to <code>0</code>.</li>
 </ul>
+<blockquote>
+<p><strong>Note</strong>: The Merkle value of an empty trie is always equal to <code>0x03170a2e7597b7b7e3d84c05391d139a62b157e78786d8c082f29dcf4c111314</code>.</p>
+</blockquote>
 <h2 id="trie-node-value-and-merkle-value"><a class="header" href="#trie-node-value-and-merkle-value">Trie node value and Merkle value</a></h2>
 <h3 id="trie-node-value"><a class="header" href="#trie-node-value">Trie node value</a></h3>
 <p>A <strong>trie node value</strong> is defined as:</p>
@@ -213,12 +216,6 @@ If the 4 most significant bits of <em>Header</em> are equal to <code>0000</code>
 <tr><td>Child Merkle value</td><td>Bytes</td><td><em>Child Merkle value size</em></td></tr>
 </tbody></table>
 <p><em>Child Merkle value size</em> is always inferior or equal to 32.</p>
-<h3 id="merkle-value"><a class="header" href="#merkle-value">Merkle value</a></h3>
-<p>The <strong>Merkle value of a trie node</strong> is:</p>
-<ul>
-<li>If the <strong>trie node value</strong> is less than 32 bytes, the trie node value itself.</li>
-<li>If the <strong>trie node value</strong> is 32 bytes or more, then the 32 bytes <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a> hash of the trie node value.</li>
-</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="webassembly-runtime"><a class="header" href="#webassembly-runtime">WebAssembly runtime</a></h1>
 <h2 id="runtime-code"><a class="header" href="#runtime-code">Runtime code</a></h2>
 <p>The <strong>runtime code</strong> is defined as either:</p>
