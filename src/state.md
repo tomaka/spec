@@ -12,8 +12,10 @@ Each key has a (potentially empty) value associated to it.
 
 The **Merkle value of a trie** is defined as:
 
-- If the trie is not empty, the **Merkle value of the trie node** that serves as the common ancestor of all other trie nodes.
-- If the trie is empty, it is equal to the hash of TODO
+- If the trie is not empty, it is equal to the [BLAKE2](https://datatracker.ietf.org/doc/html/rfc7693) hash of the *trie node value* of the trie node that serves as the common ancestor of all other trie nodes.
+- If the trie is empty, it is equal to the [BLAKE2](https://datatracker.ietf.org/doc/html/rfc7693) hash of a trie node value whose *Header* is equal to `0`.
+
+> **Note**: The Merkle value of an empty trie is always equal to `0x03170a2e7597b7b7e3d84c05391d139a62b157e78786d8c082f29dcf4c111314`.
 
 ## Trie node value and Merkle value
 
@@ -87,10 +89,3 @@ For each element of *Children*, if the corresponding bit in *Children bitmap* is
 | Child Merkle value | Bytes | *Child Merkle value size* |
 
 *Child Merkle value size* is always inferior or equal to 32.
-
-### Merkle value
-
-The **Merkle value of a trie node** is:
-
-- If the **trie node value** is less than 32 bytes, the trie node value itself.
-- If the **trie node value** is 32 bytes or more, then the 32 bytes [BLAKE2](https://datatracker.ietf.org/doc/html/rfc7693) hash of the trie node value.
