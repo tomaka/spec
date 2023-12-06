@@ -33,7 +33,7 @@ A **trie node value** is defined as:
 Where:
 
 *Header* is one byte that is used to determine the format of the rest of the trie node value.
-If the 4 most significant bits of *Header* are equal to `0000`, then the value *Header* must be equal to `0`.
+If the 4 most significant bits of *Header* are equal to `0000`, then the value of all the bits of *Header* must be equal to `0`.
 
 The *Partial key length in header* is defined as:
 
@@ -47,31 +47,37 @@ The *Partial key extra length* is defined as:
 - If the *Partial key length in header* is equal to `63`, it is a serie of zero or more bytes equal to `255` followed with one byte that is not equal to `255`.
 - If the *Partial key length in header* is not equal to `63`, it is empty (the field is not present).
 
-The *Partial key length* is defined as the sum of each byte of *Partial key extra length*, plus the value of *Partial key length in header*.
+The *Partial key length* is defined as the sum of the value of each byte of *Partial key extra length*, plus the value of *Partial key length in header*.
 
 The *Partial key* is defined as:
 
 - If *Partial key length* is an even number, a list of bytes whose length is *Partial key length* divided by 2.
 - If *Partial key length* is an uneven number, a list of bytes whose length is (1 plus *Partial key length*) divided by 2. The four most significant bits of the first byte must be equal to `0000`.
 
-*Children bitmap* is present only if the most significant bit of *Header* is `1`, or if the four most significant bits of *Header* are `0001`. If *Children bitmap* is missing, it implicitly has a value of 0.
+*Children bitmap* is present only if the most significant bit of *Header* is `1`, or if the four most significant bits of *Header* are `0001`. If *Children bitmap* is missing, it implicitly has a value of `0`.
 
-*Storage value* is present only if the second most significant bit of *Header* is `1`, or if the three most significant bits of *Header* are `001`, or if the four most significant bits of *Header* are `0001`.
+*Storage value* is present only if the second most significant bit of *Header* is `1`, if the three most significant bits of *Header* are `001`, or if the four most significant bits of *Header* are `0001`.
 
-If the second most significant bit of *Header* is `1`, then the *Storage value version* is `0` and the *Storage value* field is defined as:
+The *Storage value version* is defined as:
+
+- `0` if the second most significant bit of *Header* is `1`.
+- `1` if the three most significant bits of *Header* are `001`, or if the four most significant bits of *Header* are `0001`.
+- Undefined otherwise.
+
+If the *Storage value version* is `0`, then the *Storage value* field is defined as:
 
 | Field name         | Type      | Size (bytes)   |
 | ------------------ | --------- | -------------- |
 | Storage value size | SCALE-compact-encoded unsigned integer | (variable) |
 | Storage value | Bytes | *Storage value size* |
 
-If the three most significant bits of *Header* are `001`, or if the four most significant bits of *Header* are `0001`, then the *Storage value version* is `1` and the *Storage value* field is defined as:
+If the *Storage value version* is `1`, then the *Storage value* field is defined as:
 
 | Field name         | Type      | Size (bytes)   |
 | ------------------ | --------- | -------------- |
 | Storage value | Bytes | 32 |
 
-Each of the 16 elements of *Children* corresponds to a bit in *Children bitmap*. The first child corresponds to the least significant bit, while the last child corresponds to the most significant bit.
+Each of the 16 elements of *Children* corresponds to a bit in *Children bitmap*. The first child corresponds to the least significant bit, the second child corresponds to the second least significant bit, and so on. The last child corresponds to the most significant bit.
 
 For each element of *Children*, if the corresponding bit in *Children bitmap* is `0`, then it is empty. Otherwise, it is defined as:
 
