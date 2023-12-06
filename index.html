@@ -145,19 +145,19 @@
                         <h1 id="state"><a class="header" href="#state">State</a></h1>
 <p>The so-called <strong>state</strong> is made of one or more <strong>trie</strong>s:</p>
 <ul>
-<li>One <strong>main trie</strong>.</li>
-<li>Zero or more <strong>child tries</strong>.</li>
+<li>One <strong>main trie</strong> whose hash algorithm is <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a>.</li>
+<li>Zero or more <strong>child tries</strong> whose hash algorithm is <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a>.</li>
 </ul>
 <h2 id="trie"><a class="header" href="#trie">Trie</a></h2>
-<p>A <strong>trie</strong> is defined as a (potentially empty) set of <em>keys</em>.
+<p>A <strong>trie</strong> is defined as a (potentially empty) set of <em>keys</em> and a <em>hash algorithm</em>.
 Each key has a (potentially empty) value associated to it.</p>
 <p>The <strong>Merkle value of a trie</strong> is defined as:</p>
 <ul>
-<li>If the trie is not empty, it is equal to the <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a> hash of the <em>trie node value</em> of the trie node that serves as the common ancestor of all other trie nodes.</li>
-<li>If the trie is empty, it is equal to the <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a> hash of a trie node value whose <em>Header</em> is equal to <code>0</code>.</li>
+<li>If the trie is not empty, it is equal to the hash of the <em>trie node value</em> of the trie node that serves as the common ancestor of all other trie nodes.</li>
+<li>If the trie is empty, it is equal to the hash of a trie node value whose <em>Header</em> is equal to <code>0</code>.</li>
 </ul>
 <blockquote>
-<p><strong>Note</strong>: The Merkle value of an empty trie is always equal to <code>0x03170a2e7597b7b7e3d84c05391d139a62b157e78786d8c082f29dcf4c111314</code>.</p>
+<p><strong>Note</strong>: The Merkle value of a BLAKE2 empty trie is always equal to <code>0x03170a2e7597b7b7e3d84c05391d139a62b157e78786d8c082f29dcf4c111314</code>. The Merkle value of a Keccak256 empty trie is <code>0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a</code>.</p>
 </blockquote>
 <h2 id="trie-node-value-and-merkle-value"><a class="header" href="#trie-node-value-and-merkle-value">Trie node value and Merkle value</a></h2>
 <h3 id="trie-node-value"><a class="header" href="#trie-node-value">Trie node value</a></h3>
