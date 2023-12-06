@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li><li class="chapter-item expanded "><a href="blocks-finalization.html"><strong aria-hidden="true">2.3.</strong> Blocks finalization</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="session-keys.html"><strong aria-hidden="true">6.</strong> Session keys</a></li><li class="chapter-item expanded "><a href="requirements.html"><strong aria-hidden="true">7.</strong> Requirements</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="state.html"><strong aria-hidden="true">1.</strong> State</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="runtime.html"><strong aria-hidden="true">1.1.</strong> WebAssembly runtime</a></li></ol></li><li class="chapter-item expanded "><a href="blocks.html"><strong aria-hidden="true">2.</strong> Blocks</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="blocks-verification.html"><strong aria-hidden="true">2.1.</strong> Blocks verification</a></li><li class="chapter-item expanded "><a href="blocks-authoring.html"><strong aria-hidden="true">2.2.</strong> Blocks authoring</a></li><li class="chapter-item expanded "><a href="blocks-finalization.html"><strong aria-hidden="true">2.3.</strong> Blocks finalization</a></li></ol></li><li class="chapter-item expanded "><a href="transactions.html"><strong aria-hidden="true">3.</strong> Transactions</a></li><li class="chapter-item expanded "><a href="parachains.html"><strong aria-hidden="true">4.</strong> Parachains</a></li><li class="chapter-item expanded "><a href="network.html"><strong aria-hidden="true">5.</strong> Networking</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="network-transport.html"><strong aria-hidden="true">5.1.</strong> Transport</a></li><li class="chapter-item expanded "><a href="network-matrix.html"><strong aria-hidden="true">5.2.</strong> Validators matrix</a></li><li class="chapter-item expanded "><a href="network-protocol.html"><strong aria-hidden="true">5.3.</strong> Protocols</a></li><li class="chapter-item expanded "><a href="network-kad.html"><strong aria-hidden="true">5.4.</strong> Kademlia</a></li></ol></li><li class="chapter-item expanded "><a href="session-keys.html"><strong aria-hidden="true">6.</strong> Session keys</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -644,6 +644,12 @@ TODO: define more formally</p>
 </blockquote>
 <p>TODO: once a round is completable, <code>round - 1</code> can be completely closed and all votes discarded (source: Alistair)
 TODO: this means that there are always 2 rounds running at any given time</p>
+<h2 id="grandpa-voter"><a class="header" href="#grandpa-voter">Grandpa voter</a></h2>
+<p>The <strong>Grandpa voter</strong> algorithm is defined as:</p>
+<ul>
+<li>If the public key corresponding to the Grandpa key is <em>not</em> equal to the primary, wait for either 2 seconds or the round is completable, whatever comes first.</li>
+</ul>
+<p>TODO: </p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transactions"><a class="header" href="#transactions">Transactions</a></h1>
 <p>A <strong>transaction</strong> is defined as an opaque list of bytes.</p>
 <p>An implementation should not try to interpret the format of a transaction.</p>
@@ -1195,52 +1201,47 @@ message Identify {
 <h2 id="authority-discovery"><a class="header" href="#authority-discovery">Authority discovery</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="session-keys"><a class="header" href="#session-keys">Session keys</a></h1>
 <p>TODO: https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/substrate/primitives/core/src/crypto.rs#L1145</p>
-<h2 id="aura-and-babe"><a class="header" href="#aura-and-babe">Aura and Babe</a></h2>
-<p>In order to handle an Aura or Babe key, an implementation must:</p>
+<p>When the <code>ext_crypto_ed25519_generate_version_1</code>, <code>ext_crypto_sr25519_generate_version_1</code>, or <code>ext_crypto_ecdsa_generate_version_1</code> host functions are called by the runtime during a runtime call, the implementation must persist the private key. In other words, the private key should be stored on disk.</p>
+<blockquote>
+<p><strong>Note</strong>: These host functions are not always legal to call. See the appropriate section for more information.</p>
+</blockquote>
+<p>Additionally, an implementation must start performing some actions based on the <code>key_type</code> parameter that was provided when calling the host function. The <code>key_types</code> that require additional actions are:</p>
 <ul>
+<li><code>aura</code></li>
+<li><code>babe</code></li>
+<li><code>gran</code></li>
+<li><code>audi</code></li>
+</ul>
+<p>TODO: parachain stuff?</p>
+<p>Any other <code>key_type</code> doesn't require any further action.</p>
+<h2 id="aura-and-babe"><a class="header" href="#aura-and-babe">Aura and Babe</a></h2>
+<p>In order to handle a key of type <code>aura</code> or <code>babe</code>, an implementation must:</p>
+<p>TODO: find a way to add links to the rest of the spec</p>
+<ul>
+<li>Maintain a tree of blocks that successfully pass block execution.</li>
+<li>Run offchain workers. TODO clarify</li>
+<li>Maintain a set of valid transactions.</li>
 <li>Try as hard as possible to gather blocks from the other peers.</li>
-<li>Try to author blocks.</li>
-<li>Whenever it successfully authors a block, send a block announce notification to other peers about this block.</li>
-<li>Serve the blocks it successfully authors through the <code>sync</code> protocol.</li>
+<li>Try as hard as possible to gather transactions from the other peers.</li>
+<li>Try to author blocks, providing the tree of blocks, key, and set of valid transactions. TODO match aura/babe key types with Aura and Babe algorithms</li>
+<li>Whenever a block is successfully authored, send a block announce notification to other peers about this block.</li>
+<li>Serve to other peers the blocks it successfully authors through the <code>sync</code> protocol.</li>
 </ul>
 <h2 id="grandpa-1"><a class="header" href="#grandpa-1">Grandpa</a></h2>
-<p>In order to handle a Grandpa key, an implementation must:</p>
+<p>In order to handle a key of type <code>gran</code>, an implementation must:</p>
 <ul>
+<li>Maintain a tree of blocks that successfully pass block execution.</li>
+<li>Run offchain workers. TODO clarify</li>
+<li>Maintain set of prevotes, precommits, Grandpa commits, and Grandpa justifications.</li>
 <li>Try as hard as possible to gather blocks from the other peers.</li>
-<li>Try as hard as possible to gather grandpa votes from the other peers.</li>
-<li>TODO: finish</li>
-</ul>
-<p>The <strong>Grandpa voter</strong> algorithm is defined as:</p>
-<ul>
-<li>If the public key corresponding to the Grandpa key is <em>not</em> equal to the primary, wait for either 2 seconds or the round is completable, whatever comes first.</li>
-</ul>
-<h2 id="authority-discovery-1"><a class="header" href="#authority-discovery-1">Authority discovery</a></h2>
-<p>TODO</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="requirements"><a class="header" href="#requirements">Requirements</a></h1>
-<p>In order to conform to this specification, a <strong>validator</strong> should:</p>
-<ul>
-<li>Listen for incoming networking connections.</li>
-<li>Attempt to connect to the other nodes.</li>
-<li>Publish its address using authority-discovery.</li>
-<li>Author blocks at a speed superior or equal to the reference implementation running on the reference hardware. TODO define?</li>
-<li>After it has authored a block, send to a large set of peers a <em>block announce</em> concerning this block.</li>
-<li>Have a transactions pool.</li>
-<li>Run offchain workers</li>
-<li></li>
+<li>Try as hard as possible to gather prevotes, precommits, Grandpa commits, and Grandpa justifications from the other peers.</li>
+<li>Run the Grandpa voter algorithm.</li>
+<li>Whenever a prevote or a precommit is emitted by the Grandpa voter algorithm, send it to other peers.</li>
 </ul>
 <p>TODO finish</p>
-<p>These requirements should be seen as <em>minimal requirements</em>, and are in no way a guarantee that running this validator will get rewards. It is fundamentally impossible to guarantee rewards, given that some aspects are out of control of the implementation and of the node operator (for example Internet cables being severed).</p>
-<h2 id="generating-session-keys"><a class="header" href="#generating-session-keys">Generating session keys</a></h2>
-<p>TODO: move this section somewhere else</p>
-<p>Given a <em>block header</em>, the <strong>session keys</strong> can be generated by following these steps:</p>
-<p>TODO: describe input and check API version and all</p>
-<ul>
-<li>Perform a <em>runtime call</em> of the function <code>SessionKeys_generate_session_keys</code>, with keystore host functions enabled.</li>
-<li>The output of this runtime call is the <strong>session keys</strong>.</li>
-</ul>
-<blockquote>
-<p><strong>Note</strong>: The runtime call to <code>SessionKeys_generate_session_keys</code> is expected to call host functions such as <code>ext_crypto_sr25519_generate_version_1</code> which insert private keys into the <em>keystore</em> TODO: keystore not defined.</p>
-</blockquote>
+<h2 id="authority-discovery-1"><a class="header" href="#authority-discovery-1">Authority discovery</a></h2>
+<p>In order to handle a key of type <code>audi</code>, an implementation must:</p>
+<p>TODO</p>
 
                     </main>
 
