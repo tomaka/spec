@@ -83,7 +83,7 @@ TODO: finish here
 | ------------------ | --------- | -------------- |
 | (constant) | 0x0 | 1 |
 | Data length | SCALE-compact-encoded unsigned integer | (variable) |
-| Data | Bytes | (indicated by `Data length`) |
+| Data | Bytes | `Data length` |
 
 ## Genesis block header
 
