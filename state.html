@@ -143,15 +143,22 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="state"><a class="header" href="#state">State</a></h1>
-<p>The so-called <strong>state</strong> is made of one or more <strong>trie</strong>s:</p>
-<ul>
-<li>One <strong>main trie</strong> whose hash algorithm is <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a>.</li>
-<li>Zero or more <strong>child tries</strong> whose hash algorithm is <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a>.</li>
-</ul>
 <h2 id="trie"><a class="header" href="#trie">Trie</a></h2>
-<p>A <strong>trie</strong> is defined as a (potentially empty) set of <em>keys</em> and a <em>hash algorithm</em>.
-Each key has a (potentially empty) value associated to it.</p>
-<p>The <strong>Merkle value of a trie</strong> is defined as:</p>
+<p>A <strong>trie</strong> is defined as:</p>
+<ul>
+<li>A <em>hash algorithm</em></li>
+<li>A (potentially empty) tree of nodes.</li>
+</ul>
+<p>Each <strong>node</strong> is defined as:</p>
+<ul>
+<li>A <em>partial key</em> made of 4 bits <strong>nibbles</strong>.</li>
+<li>Between zero and sixteen children nodes.</li>
+<li>Optionally, a <strong>storage value</strong> and a <strong>storage value version</strong> (either both present or both absent). The storage value version is equal to either <code>0</code> or <code>1</code>.</li>
+</ul>
+<p>Nodes with exactly one child and no storage value are invalid.</p>
+<p>Any given <em>trie</em> is either empty, or has one <em>node</em> with no parent and a set of nodes whose parent is also in the trie. Cycles are forbidden.</p>
+<p>The <strong>key</strong> of a node is defined as the concatenation of the key of the parent, the index of the node within its parent's children list, and the partial key of the node.</p>
+<p>The <strong>Merkle value</strong> of a trie is defined as:</p>
 <ul>
 <li>If the trie is not empty, it is equal to the hash of the <em>trie node value</em> of the trie node that serves as the common ancestor of all other trie nodes.</li>
 <li>If the trie is empty, it is equal to the hash of a trie node value whose <em>Header</em> is equal to <code>0</code>.</li>
@@ -159,6 +166,13 @@ Each key has a (potentially empty) value associated to it.</p>
 <blockquote>
 <p><strong>Note</strong>: The Merkle value of a BLAKE2 empty trie is always equal to <code>0x03170a2e7597b7b7e3d84c05391d139a62b157e78786d8c082f29dcf4c111314</code>. The Merkle value of a Keccak256 empty trie is <code>0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a</code>.</p>
 </blockquote>
+<h2 id="state-1"><a class="header" href="#state-1">State</a></h2>
+<p>The <strong>state</strong> is composed of:</p>
+<ul>
+<li>One main <em>trie</em> whose hash algorithm is <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a>.</li>
+<li>Zero or more child <em>trie</em>s whose hash algorithm is <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a>.</li>
+</ul>
+<p>TODO: talk about the Merkle value of child tries within the main trie</p>
 <h2 id="trie-node-value-and-merkle-value"><a class="header" href="#trie-node-value-and-merkle-value">Trie node value and Merkle value</a></h2>
 <h3 id="trie-node-value"><a class="header" href="#trie-node-value">Trie node value</a></h3>
 <p>A <strong>trie node value</strong> is defined as:</p>
@@ -189,7 +203,8 @@ If the 4 most significant bits of <em>Header</em> are equal to <code>0000</code>
 <p>The <em>Partial key</em> is defined as:</p>
 <ul>
 <li>If <em>Partial key length</em> is an even number, a list of bytes whose length is <em>Partial key length</em> divided by 2.</li>
-<li>If <em>Partial key length</em> is an uneven number, a list of bytes whose length is (1 plus <em>Partial key length</em>) divided by 2. The four most significant bits of the first byte must be equal to <code>0000</code>.</li>
+<li>If <em>Partial key length</em> is an uneven number, a list of bytes whose length is (1 plus <em>Partial key length</em>) divided by 2. The four most significant bits of the first byte must be equal to <code>0000</code>.
+TODO: convert to nibbles</li>
 </ul>
 <p><em>Children bitmap</em> is present only if the most significant bit of <em>Header</em> is <code>1</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>. If <em>Children bitmap</em> is missing, it implicitly has a value of <code>0</code>.</p>
 <p><em>Storage value</em> is present only if the second most significant bit of <em>Header</em> is <code>1</code>, if the three most significant bits of <em>Header</em> are <code>001</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>.</p>
