@@ -14,4 +14,3 @@
   - [Protocols](network-protocol.md)
   - [Kademlia](network-kad.md)
 - [Session keys](session-keys.md)
-- [Requirements](requirements.md)

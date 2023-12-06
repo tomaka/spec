@@ -2,27 +2,52 @@
 
 TODO: https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/substrate/primitives/core/src/crypto.rs#L1145
 
+When the `ext_crypto_ed25519_generate_version_1`, `ext_crypto_sr25519_generate_version_1`, or `ext_crypto_ecdsa_generate_version_1` host functions are called by the runtime during a runtime call, the implementation must persist the private key. In other words, the private key should be stored on disk.
+
+> **Note**: These host functions are not always legal to call. See the appropriate section for more information.
+
+Additionally, an implementation must start performing some actions based on the `key_type` parameter that was provided when calling the host function. The `key_types` that require additional actions are:
+
+- `aura`
+- `babe`
+- `gran`
+- `audi`
+
+TODO: parachain stuff?
+
+Any other `key_type` doesn't require any further action.
+
 ## Aura and Babe
 
-In order to handle an Aura or Babe key, an implementation must:
+In order to handle a key of type `aura` or `babe`, an implementation must:
 
+TODO: find a way to add links to the rest of the spec
+
+- Maintain a tree of blocks that successfully pass block execution.
+- Run offchain workers. TODO clarify
+- Maintain a set of valid transactions.
 - Try as hard as possible to gather blocks from the other peers.
-- Try to author blocks.
-- Whenever it successfully authors a block, send a block announce notification to other peers about this block.
-- Serve the blocks it successfully authors through the `sync` protocol.
+- Try as hard as possible to gather transactions from the other peers.
+- Try to author blocks, providing the tree of blocks, key, and set of valid transactions. TODO match aura/babe key types with Aura and Babe algorithms
+- Whenever a block is successfully authored, send a block announce notification to other peers about this block.
+- Serve to other peers the blocks it successfully authors through the `sync` protocol.
 
 ## Grandpa
 
-In order to handle a Grandpa key, an implementation must:
+In order to handle a key of type `gran`, an implementation must:
 
+- Maintain a tree of blocks that successfully pass block execution.
+- Run offchain workers. TODO clarify
+- Maintain set of prevotes, precommits, Grandpa commits, and Grandpa justifications.
 - Try as hard as possible to gather blocks from the other peers.
-- Try as hard as possible to gather grandpa votes from the other peers.
-- TODO: finish
+- Try as hard as possible to gather prevotes, precommits, Grandpa commits, and Grandpa justifications from the other peers.
+- Run the Grandpa voter algorithm.
+- Whenever a prevote or a precommit is emitted by the Grandpa voter algorithm, send it to other peers.
 
-The **Grandpa voter** algorithm is defined as:
-
-- If the public key corresponding to the Grandpa key is *not* equal to the primary, wait for either 2 seconds or the round is completable, whatever comes first.
+TODO finish
 
 ## Authority discovery
+
+In order to handle a key of type `audi`, an implementation must:
 
 TODO

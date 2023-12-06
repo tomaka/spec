@@ -150,3 +150,11 @@ A *completable* round can be turned into a *Grandpa commit* or a *Grandpa justif
 
 TODO: once a round is completable, `round - 1` can be completely closed and all votes discarded (source: Alistair)
 TODO: this means that there are always 2 rounds running at any given time
+
+## Grandpa voter
+
+The **Grandpa voter** algorithm is defined as:
+
+- If the public key corresponding to the Grandpa key is *not* equal to the primary, wait for either 2 seconds or the round is completable, whatever comes first.
+
+TODO: 
