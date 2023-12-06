@@ -154,14 +154,60 @@
 Each key has a (potentially empty) value associated to it.</p>
 <p>The <strong>Merkle value of a trie</strong> is defined as:</p>
 <ul>
-<li>If the trie is not empty, the <strong>Merkle value of the trie node</strong> that serves as the common ancestor of all other trie nodes. </li>
+<li>If the trie is not empty, the <strong>Merkle value of the trie node</strong> that serves as the common ancestor of all other trie nodes.</li>
 <li>If the trie is empty, it is equal to the hash of TODO</li>
 </ul>
 <h2 id="trie-node-value-and-merkle-value"><a class="header" href="#trie-node-value-and-merkle-value">Trie node value and Merkle value</a></h2>
-<p>A <strong>trie node value</strong> is defined as the concatenation of the following bytes:</p>
+<h3 id="trie-node-value"><a class="header" href="#trie-node-value">Trie node value</a></h3>
+<p>A <strong>trie node value</strong> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Header</td><td>(see below)</td><td>1</td></tr>
+<tr><td>Partial key extra length</td><td>(see below)</td><td>(variable)</td></tr>
+<tr><td>Partial key</td><td>(see below)</td><td>(variable)</td></tr>
+<tr><td>Children bitmap</td><td>(optional) Little endian unsigned integer</td><td>0 or 2</td></tr>
+<tr><td>Storage value</td><td>(see below)</td><td>(variable)</td></tr>
+<tr><td>Children</td><td>(see below) repeated 16 times</td><td>(variable)</td></tr>
+</tbody></table>
+<p>Where:</p>
+<p><em>Header</em> is one byte that is used to determine the format of the rest of the trie node value.
+If the 4 most significant bits of <em>Header</em> are equal to <code>0000</code>, then the value <em>Header</em> must be equal to <code>0</code>.</p>
+<p>The <em>Partial key length in header</em> is defined as:</p>
 <ul>
-<li>TODO</li>
+<li>If the two most significant bits of <em>Header</em> are equal to <code>01</code>, <code>10</code>, or <code>11</code>, it is equal to the 6 least significant bits of <em>Header</em>.</li>
+<li>If the three most significant bits of <em>Header</em> are equal to <code>001</code>, it is equal to the 5 least significant bits of <em>Header</em>.</li>
+<li>If the four most significant bits of <em>Header</em> are equal to <code>0001</code>, it is equal to the 4 least significant bits of <em>Header</em>.</li>
+<li>If the <em>Header</em> is equal to <code>0</code>, is it equal to <code>0</code>.</li>
 </ul>
+<p>The <em>Partial key extra length</em> is defined as:</p>
+<ul>
+<li>If the <em>Partial key length in header</em> is equal to <code>63</code>, it is a serie of zero or more bytes equal to <code>255</code> followed with one byte that is not equal to <code>255</code>.</li>
+<li>If the <em>Partial key length in header</em> is not equal to <code>63</code>, it is empty (the field is not present).</li>
+</ul>
+<p>The <em>Partial key length</em> is defined as the sum of each byte of <em>Partial key extra length</em>, plus the value of <em>Partial key length in header</em>.</p>
+<p>The <em>Partial key</em> is defined as:</p>
+<ul>
+<li>If <em>Partial key length</em> is an even number, a list of bytes whose length is <em>Partial key length</em> divided by 2.</li>
+<li>If <em>Partial key length</em> is an uneven number, a list of bytes whose length is (1 plus <em>Partial key length</em>) divided by 2. The four most significant bits of the first byte must be equal to <code>0000</code>.</li>
+</ul>
+<p><em>Children bitmap</em> is present only if the most significant bit of <em>Header</em> is <code>1</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>. If <em>Children bitmap</em> is missing, it implicitly has a value of 0.</p>
+<p><em>Storage value</em> is present only if the second most significant bit of <em>Header</em> is <code>1</code>, or if the three most significant bits of <em>Header</em> are <code>001</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>.</p>
+<p>If the second most significant bit of <em>Header</em> is <code>1</code>, then the <em>Storage value version</em> is <code>0</code> and the <em>Storage value</em> field is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Storage value size</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Storage value</td><td>Bytes</td><td><em>Storage value size</em></td></tr>
+</tbody></table>
+<p>If the three most significant bits of <em>Header</em> are <code>001</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>, then the <em>Storage value version</em> is <code>1</code> and the <em>Storage value</em> field is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Storage value</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<p>Each of the 16 elements of <em>Children</em> corresponds to a bit in <em>Children bitmap</em>. The first child corresponds to the least significant bit, while the last child corresponds to the most significant bit.</p>
+<p>For each element of <em>Children</em>, if the corresponding bit in <em>Children bitmap</em> is <code>0</code>, then it is empty. Otherwise, it is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Child Merkle value size</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>Child Merkle value</td><td>Bytes</td><td><em>Child Merkle value size</em></td></tr>
+</tbody></table>
+<p><em>Child Merkle value size</em> is always inferior or equal to 32.</p>
+<h3 id="merkle-value"><a class="header" href="#merkle-value">Merkle value</a></h3>
 <p>The <strong>Merkle value of a trie node</strong> is:</p>
 <ul>
 <li>If the <strong>trie node value</strong> is less than 32 bytes, the trie node value itself.</li>
@@ -966,7 +1012,7 @@ TODO</p>
 <h3 id="block-announces"><a class="header" href="#block-announces">Block announces</a></h3>
 <p>The format of the handshake is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
-<tr><td>Role</td><td>Role</td><td>1</td></tr>
+<tr><td>Role</td><td>(see below)</td><td>1</td></tr>
 <tr><td>Best block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8</td></tr>
 <tr><td>Best block hash</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Genesis block hash</td><td>Bytes</td><td>32</td></tr>
@@ -974,7 +1020,7 @@ TODO</p>
 <blockquote>
 <p><strong>Note</strong>: The genesis block hash field is a redundant information.  TODO write an RFC about that</p>
 </blockquote>
-<p>Where <code>Role</code> is one of:</p>
+<p>Where <em>Role</em> is one of:</p>
 <ul>
 <li><code>0x1</code>: Full node capabilities.</li>
 <li><code>0x2</code>: Light client capabilities.</li>
@@ -1007,11 +1053,14 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <h3 id="grandpa"><a class="header" href="#grandpa">Grandpa</a></h3>
 <p>The format of the handshake is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
-<tr><td>Role</td><td>Role</td><td>1</td></tr>
+<tr><td>Role</td><td>(see below)</td><td>1</td></tr>
 </tbody></table>
-<blockquote>
-<p><strong>Note</strong>: <code>Role</code> is defined in the <em>Block announces</em> section.</p>
-</blockquote>
+<p>Where <em>Role</em> is one of:</p>
+<ul>
+<li><code>0x1</code>: Full node capabilities.</li>
+<li><code>0x2</code>: Light client capabilities.</li>
+<li><code>0x4</code>: Authorities capabilities.</li>
+</ul>
 <p>An implementation can use the <code>Role</code> of a peer as a hint in order to determine the priority level at which it broadcasts notifications to that peer.</p>
 <p>The format of a notification is one of the following:</p>
 <h4 id="neighbor-packet"><a class="header" href="#neighbor-packet">Neighbor packet</a></h4>
@@ -1032,13 +1081,13 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <tr><td>(constant)</td><td>0x0</td><td>1</td></tr>
 <tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
 <tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
-<tr><td>Vote type</td><td>Vote type</td><td>1</td></tr>
+<tr><td>Vote type</td><td>(see below)</td><td>1</td></tr>
 <tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
 <tr><td>Signature</td><td>Bytes</td><td>64</td></tr>
 <tr><td>Authority public key</td><td>Bytes</td><td>32</td></tr>
 </tbody></table>
-<p>Where <code>Vote type</code> is one of:</p>
+<p>Where <em>Vote type</em> is one of:</p>
 <ul>
 <li><code>0x0</code>: Prevote</li>
 <li><code>0x1</code>: Precommit</li>
@@ -1058,17 +1107,19 @@ TODO: maybe update for https://github.com/polkadot-fellows/RFCs/pull/56 if it is
 <tr><td>Set ID</td><td>Little endian unsigned integer</td><td>8</td></tr>
 <tr><td>Round number</td><td>Little endian unsigned integer</td><td>8</td></tr>
 <tr><td>Number of prevotes</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Prevotes</td><td>Vote (see below) repeated <em>Number of prevotes</em> times</td><td>36 or 40 times <em>Number of prevotes</em> TODO</td></tr>
+<tr><td>(repeated) Prevotes</td><td>(see below) repeated <em>Number of prevotes</em> times</td><td>36 or 40 times <em>Number of prevotes</em> TODO</td></tr>
 <tr><td>Number of precommits</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
-<tr><td>(repeated) Precommits</td><td>Vote (see below) repeated <em>Number of precommits</em> times</td><td>36 or 40 times <em>Number of precommits</em>  TODO</td></tr>
+<tr><td>(repeated) Precommits</td><td>(see below) repeated <em>Number of precommits</em> times</td><td>36 or 40 times <em>Number of precommits</em>  TODO</td></tr>
 <tr><td>Base block hash</td><td>Bytes</td><td>32</td></tr>
 <tr><td>Base block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
 </tbody></table>
-<p>Where a <strong>Vote</strong> is defined as:</p>
-<p>| Target block hash | Bytes | 32 |
-| Target block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
-| Signature | Bytes | 64 |
-| Authority public key | Bytes | 32 |</p>
+<p>Where each item in <em>Prevotes</em> and <em>Precommits</em> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Target block hash</td><td>Bytes</td><td>32</td></tr>
+<tr><td>Target block number</td><td>Little endian unsigned integer</td><td>4 TODO or 8 due to block number</td></tr>
+<tr><td>Signature</td><td>Bytes</td><td>64</td></tr>
+<tr><td>Authority public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
 <h3 id="validation-v1"><a class="header" href="#validation-v1">Validation v1</a></h3>
 <p><strong>Protocol name</strong>: <code>/&lt;genesis-hash-and-fork-id&gt;/validation/1</code></p>
 <p>TODO</p>
