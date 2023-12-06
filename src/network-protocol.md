@@ -413,14 +413,14 @@ The format of the handshake is defined as:
 
 | Field name         | Type      | Size (bytes)   |
 | ------------------ | --------- | -------------- |
-| Role | Role | 1 |
+| Role | (see below) | 1 |
 | Best block number | Little endian unsigned integer | 4 TODO or 8 |
 | Best block hash | Bytes | 32 |
 | Genesis block hash | Bytes | 32 |
 
 > **Note**: The genesis block hash field is a redundant information.  TODO write an RFC about that
 
-Where `Role` is one of:
+Where *Role* is one of:
 
 - `0x1`: Full node capabilities.
 - `0x2`: Light client capabilities.
@@ -469,9 +469,13 @@ The format of the handshake is defined as:
 
 | Field name         | Type      | Size (bytes)   |
 | ------------------ | --------- | -------------- |
-| Role | Role | 1 |
+| Role | (see below) | 1 |
 
-> **Note**: `Role` is defined in the *Block announces* section.
+Where *Role* is one of:
+
+- `0x1`: Full node capabilities.
+- `0x2`: Light client capabilities.
+- `0x4`: Authorities capabilities.
 
 An implementation can use the `Role` of a peer as a hint in order to determine the priority level at which it broadcasts notifications to that peer.
 
@@ -501,13 +505,13 @@ The format of a notification is one of the following:
 | (constant) | 0x0 | 1 |
 | Round number | Little endian unsigned integer | 8 |
 | Set ID | Little endian unsigned integer | 8 |
-| Vote type | Vote type | 1 |
+| Vote type | (see below) | 1 |
 | Target block hash | Bytes | 32 |
 | Target block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
 | Signature | Bytes | 64 |
 | Authority public key | Bytes | 32 |
 
-Where `Vote type` is one of:
+Where *Vote type* is one of:
 
 - `0x0`: Prevote
 - `0x1`: Precommit
@@ -533,14 +537,16 @@ TODO: according to smoldot the set id is before the round number, whereas everyw
 | Set ID | Little endian unsigned integer | 8 |
 | Round number | Little endian unsigned integer | 8 |
 | Number of prevotes | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Prevotes | Vote (see below) repeated *Number of prevotes* times | 36 or 40 times *Number of prevotes* TODO |
+| (repeated) Prevotes | (see below) repeated *Number of prevotes* times | 36 or 40 times *Number of prevotes* TODO |
 | Number of precommits | SCALE-compact-encoded unsigned integer | (variable) |
-| (repeated) Precommits | Vote (see below) repeated *Number of precommits* times | 36 or 40 times *Number of precommits*  TODO |
+| (repeated) Precommits | (see below) repeated *Number of precommits* times | 36 or 40 times *Number of precommits*  TODO |
 | Base block hash | Bytes | 32 |
 | Base block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
 
-Where a **Vote** is defined as:
+Where each item in *Prevotes* and *Precommits* is defined as:
 
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
 | Target block hash | Bytes | 32 |
 | Target block number | Little endian unsigned integer | 4 TODO or 8 due to block number |
 | Signature | Bytes | 64 |
