@@ -170,7 +170,7 @@ Each key has a (potentially empty) value associated to it.</p>
 </tbody></table>
 <p>Where:</p>
 <p><em>Header</em> is one byte that is used to determine the format of the rest of the trie node value.
-If the 4 most significant bits of <em>Header</em> are equal to <code>0000</code>, then the value <em>Header</em> must be equal to <code>0</code>.</p>
+If the 4 most significant bits of <em>Header</em> are equal to <code>0000</code>, then the value of all the bits of <em>Header</em> must be equal to <code>0</code>.</p>
 <p>The <em>Partial key length in header</em> is defined as:</p>
 <ul>
 <li>If the two most significant bits of <em>Header</em> are equal to <code>01</code>, <code>10</code>, or <code>11</code>, it is equal to the 6 least significant bits of <em>Header</em>.</li>
@@ -183,24 +183,30 @@ If the 4 most significant bits of <em>Header</em> are equal to <code>0000</code>
 <li>If the <em>Partial key length in header</em> is equal to <code>63</code>, it is a serie of zero or more bytes equal to <code>255</code> followed with one byte that is not equal to <code>255</code>.</li>
 <li>If the <em>Partial key length in header</em> is not equal to <code>63</code>, it is empty (the field is not present).</li>
 </ul>
-<p>The <em>Partial key length</em> is defined as the sum of each byte of <em>Partial key extra length</em>, plus the value of <em>Partial key length in header</em>.</p>
+<p>The <em>Partial key length</em> is defined as the sum of the value of each byte of <em>Partial key extra length</em>, plus the value of <em>Partial key length in header</em>.</p>
 <p>The <em>Partial key</em> is defined as:</p>
 <ul>
 <li>If <em>Partial key length</em> is an even number, a list of bytes whose length is <em>Partial key length</em> divided by 2.</li>
 <li>If <em>Partial key length</em> is an uneven number, a list of bytes whose length is (1 plus <em>Partial key length</em>) divided by 2. The four most significant bits of the first byte must be equal to <code>0000</code>.</li>
 </ul>
-<p><em>Children bitmap</em> is present only if the most significant bit of <em>Header</em> is <code>1</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>. If <em>Children bitmap</em> is missing, it implicitly has a value of 0.</p>
-<p><em>Storage value</em> is present only if the second most significant bit of <em>Header</em> is <code>1</code>, or if the three most significant bits of <em>Header</em> are <code>001</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>.</p>
-<p>If the second most significant bit of <em>Header</em> is <code>1</code>, then the <em>Storage value version</em> is <code>0</code> and the <em>Storage value</em> field is defined as:</p>
+<p><em>Children bitmap</em> is present only if the most significant bit of <em>Header</em> is <code>1</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>. If <em>Children bitmap</em> is missing, it implicitly has a value of <code>0</code>.</p>
+<p><em>Storage value</em> is present only if the second most significant bit of <em>Header</em> is <code>1</code>, if the three most significant bits of <em>Header</em> are <code>001</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>.</p>
+<p>The <em>Storage value version</em> is defined as:</p>
+<ul>
+<li><code>0</code> if the second most significant bit of <em>Header</em> is <code>1</code>.</li>
+<li><code>1</code> if the three most significant bits of <em>Header</em> are <code>001</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>.</li>
+<li>Undefined otherwise.</li>
+</ul>
+<p>If the <em>Storage value version</em> is <code>0</code>, then the <em>Storage value</em> field is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>Storage value size</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
 <tr><td>Storage value</td><td>Bytes</td><td><em>Storage value size</em></td></tr>
 </tbody></table>
-<p>If the three most significant bits of <em>Header</em> are <code>001</code>, or if the four most significant bits of <em>Header</em> are <code>0001</code>, then the <em>Storage value version</em> is <code>1</code> and the <em>Storage value</em> field is defined as:</p>
+<p>If the <em>Storage value version</em> is <code>1</code>, then the <em>Storage value</em> field is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>Storage value</td><td>Bytes</td><td>32</td></tr>
 </tbody></table>
-<p>Each of the 16 elements of <em>Children</em> corresponds to a bit in <em>Children bitmap</em>. The first child corresponds to the least significant bit, while the last child corresponds to the most significant bit.</p>
+<p>Each of the 16 elements of <em>Children</em> corresponds to a bit in <em>Children bitmap</em>. The first child corresponds to the least significant bit, the second child corresponds to the second least significant bit, and so on. The last child corresponds to the most significant bit.</p>
 <p>For each element of <em>Children</em>, if the corresponding bit in <em>Children bitmap</em> is <code>0</code>, then it is empty. Otherwise, it is defined as:</p>
 <table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
 <tr><td>Child Merkle value size</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
