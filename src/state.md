@@ -35,6 +35,31 @@ The **state** is composed of:
 
 TODO: talk about the Merkle value of child tries within the main trie
 
+## Proof
+
+A **proof** is a subset of a *state*.
+
+It is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Number of proof entries | SCALE-compact-encoded unsigned integer | (variable) |
+| (repeated) Proof entry | (see below) repeated *Number of fragments* times | (variable) |
+
+Where each element in *Proof entry* is defined as:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| Entry size | SCALE-compact-encoded unsigned integer | (variable) |
+| (repeated) Entry | Bytes | *Entry size* |
+
+TODO which hash algorithm
+The hash of each *Entry* must be one of:
+
+- Equal to the *Merkle value* of the *main trie* of the state it is a subset of.
+- Equal to one of the *Children* of another entry of the proof.
+- Equal to the *Storage value* field of another entry of the proof.
+
 ## Trie node value and Merkle value
 
 ### Trie node value
