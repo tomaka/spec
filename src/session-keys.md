@@ -50,4 +50,8 @@ TODO finish
 
 In order to handle a key of type `audi`, an implementation must:
 
+- Maintain a tree of blocks.
+- Try as hard as possible to gather blocks from the other peers.
+- If and only if the key is present in the *authority-discovery validators set* of the best block of the tree, publish a valid *authority-discovery record*.
+
 TODO

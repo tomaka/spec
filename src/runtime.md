@@ -9,7 +9,7 @@ The **runtime code** is defined as either:
 
 The *runtime WebAssembly* always starts with the bytes `0x0061736D`, making it possible to unambiguously differentiate the two situations.
 
-> **Note**: Implementers should be aware of the danger of so-called "zip bombs" where a zstd-encoded payload decodes to a huge output. Implementers should make sure to cap the size of the output while decoding is in progress.
+> **Note**: Implementers should be aware of the danger of so-called "zip bombs" where a zstd-encoded payload decodes to a huge output. Implementers should make sure to cap the size of the output while the decoding is in progress.
 
 ## Runtime WebAssembly
 

@@ -5,7 +5,7 @@
 A **trie** is defined as:
 
 - A *hash algorithm*
-- A (potentially empty) tree of nodes.
+- A possibly empty tree of nodes.
 
 Each **node** is defined as:
 
