@@ -34,8 +34,14 @@ Where:
 
 - The `record` field of `SignedAuthorityRecord` is the encoding of the `AuthorityRecord` protobuf message.
 - Each element of the `addresses` field must end with `/p2p/...`. TODO define better
-- The `public_key` field of the `peer_signature` is a libp2p public key. TODO define
-- All the `PeerIds` at the end of `addresses`, and the one of `peer_signature` must all be identical.
+- The `public_key` field of the `peer_signature` is in the following format:
+
+| Field name         | Type      | Size (bytes)   |
+| ------------------ | --------- | -------------- |
+| (constant) | Bytes 0x08011220 | 4 |
+| [Ed25519](https://www.rfc-editor.org/rfc/rfc8032.txt) Public key | Bytes | 32 |
+
+- The *public key* of the *PeerId*s at the end of `addresses`, and the *public key* of `peer_signature` must all be identical.
 
 An *authority-discovery record* is valid if:
 
