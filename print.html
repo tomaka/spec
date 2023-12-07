@@ -1244,8 +1244,14 @@ message SignedAuthorityRecord {
 <ul>
 <li>The <code>record</code> field of <code>SignedAuthorityRecord</code> is the encoding of the <code>AuthorityRecord</code> protobuf message.</li>
 <li>Each element of the <code>addresses</code> field must end with <code>/p2p/...</code>. TODO define better</li>
-<li>The <code>public_key</code> field of the <code>peer_signature</code> is a libp2p public key. TODO define</li>
-<li>All the <code>PeerIds</code> at the end of <code>addresses</code>, and the one of <code>peer_signature</code> must all be identical.</li>
+<li>The <code>public_key</code> field of the <code>peer_signature</code> is in the following format:</li>
+</ul>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>(constant)</td><td>Bytes 0x08011220</td><td>4</td></tr>
+<tr><td><a href="https://www.rfc-editor.org/rfc/rfc8032.txt">Ed25519</a> Public key</td><td>Bytes</td><td>32</td></tr>
+</tbody></table>
+<ul>
+<li>The <em>public key</em> of the <em>PeerId</em>s at the end of <code>addresses</code>, and the <em>public key</em> of <code>peer_signature</code> must all be identical.</li>
 </ul>
 <p>An <em>authority-discovery record</em> is valid if:</p>
 <ul>
