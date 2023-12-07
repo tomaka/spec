@@ -173,6 +173,25 @@
 <li>Zero or more child <em>trie</em>s whose hash algorithm is <a href="https://datatracker.ietf.org/doc/html/rfc7693">BLAKE2</a>.</li>
 </ul>
 <p>TODO: talk about the Merkle value of child tries within the main trie</p>
+<h2 id="proof"><a class="header" href="#proof">Proof</a></h2>
+<p>A <strong>proof</strong> is a subset of a <em>state</em>.</p>
+<p>It is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Number of proof entries</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Proof entry</td><td>(see below) repeated <em>Number of fragments</em> times</td><td>(variable)</td></tr>
+</tbody></table>
+<p>Where each element in <em>Proof entry</em> is defined as:</p>
+<table><thead><tr><th>Field name</th><th>Type</th><th>Size (bytes)</th></tr></thead><tbody>
+<tr><td>Entry size</td><td>SCALE-compact-encoded unsigned integer</td><td>(variable)</td></tr>
+<tr><td>(repeated) Entry</td><td>Bytes</td><td><em>Entry size</em></td></tr>
+</tbody></table>
+<p>TODO which hash algorithm
+The hash of each <em>Entry</em> must be one of:</p>
+<ul>
+<li>Equal to the <em>Merkle value</em> of the <em>main trie</em> of the state it is a subset of.</li>
+<li>Equal to one of the <em>Children</em> of another entry of the proof.</li>
+<li>Equal to the <em>Storage value</em> field of another entry of the proof.</li>
+</ul>
 <h2 id="trie-node-value-and-merkle-value"><a class="header" href="#trie-node-value-and-merkle-value">Trie node value and Merkle value</a></h2>
 <h3 id="trie-node-value"><a class="header" href="#trie-node-value">Trie node value</a></h3>
 <p>A <strong>trie node value</strong> is defined as:</p>
