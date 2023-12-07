@@ -729,9 +729,9 @@ TODO libp2p handshake</p>
 <p>In order to connect to a multiaddress of the format <code>/ip4/.../tcp/...</code>, <code>/ip4/.../tcp/.../ws</code>, <code>/ip4/.../tcp/.../tls/ws</code>, <code>/ip6/.../tcp/...</code>, <code>/ip6/.../tcp/.../ws</code>, or <code>/ip6/.../tcp/.../tls/ws</code>, an implementation must:</p>
 <ul>
 <li>Open a TCP/IP connection to the given IP address and port.</li>
-<li>(ony for multiaddresses ending with <code>/ws</code> or <code>/tls/ws</code>) Perform <a href="https://datatracker.ietf.org/doc/html/rfc6455">a WebSocket (for <code>/ws</code>) or WebSocket secure (for <code>/tls/ws</code>)</a> handshake.</li>
+<li>(ony for multiaddresses ending with <code>/ws</code> or <code>/tls/ws</code>) Perform <a href="https://datatracker.ietf.org/doc/html/rfc6455">a WebSocket (for <code>/ws</code>) or WebSocket secure (for <code>/tls/ws</code>)</a> handshake, where the subprotocol name is empty. All further messages must be wrapped within WebSocket binary frames.</li>
 <li>Perform a multistream-select negotiation for the protocol named <code>/noise</code>.</li>
-<li>Perform a Noise protocol handshake.</li>
+<li>Perform a Noise protocol handshake. All further messages must be encrypted and wrapped within Noise frames.</li>
 <li>Perform a multistream-select negotiation for the protocol named <code>/yamux/1.0.0</code>.</li>
 </ul>
 <p>Multiaddresses of the format <code>/ip4/.../tcp/.../wss</code> and <code>/ip6/.../tcp/.../wss</code> must also be supported and are equivalent to respectively <code>/ip4/.../tcp/.../tls/ws</code> and <code>/ip6/.../tcp/.../tls/ws</code>. These multiaddresses are deprecated and will be removed in the future.</p>
@@ -1270,6 +1270,7 @@ message SignedAuthorityRecord {
 <li><code>babe</code></li>
 <li><code>gran</code></li>
 <li><code>audi</code></li>
+<li><code>para</code></li>
 </ul>
 <p>TODO: parachain stuff?</p>
 <p>Any other <code>key_type</code> doesn't require any further action.</p>
@@ -1308,6 +1309,8 @@ message SignedAuthorityRecord {
 <li>Try as hard as possible to gather blocks from the other peers.</li>
 <li>If and only if the key is present in the <em>authority-discovery validators set</em> of the best block of the tree, publish a valid <em>authority-discovery record</em>.</li>
 </ul>
+<p>TODO</p>
+<h1 id="parachain-validation"><a class="header" href="#parachain-validation">Parachain validation</a></h1>
 <p>TODO</p>
 
                     </main>
