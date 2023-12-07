@@ -44,7 +44,7 @@ In order to handle a key of type `gran`, an implementation must:
 - Run the Grandpa voter algorithm.
 - Whenever a prevote or a precommit is emitted by the Grandpa voter algorithm, send it to other peers.
 
-> **Note**: This specification intentionally leaves some freedom in the choice of the block to vote for. Historically, existing implementation have been voting for the ancestor of the best block whose number is equal to the best block's number minus 3. Doing so avoids finalizing blocks that have accidentally modified the state in a faulty way. However, this gap is not enforced in any way by the protocol and is intentionally not part of this specification, and the exact algorithm that chooses which block to vote for should be the result of an informal dialogue within Polkadot community.
+> **Note**: This specification intentionally leaves some freedom in the choice of the block to vote for. Historically, existing implementation have been voting for the ancestor of the best block whose number is equal to the best block's number minus 3. Doing so avoids finalizing blocks that have accidentally modified the state in a faulty way. However, this gap is not enforced in any way by the protocol and is intentionally not part of this specification. The exact algorithm that chooses which block to vote for should be the result of an informal dialogue within Polkadot community.
 
 TODO finish
 
