@@ -151,7 +151,7 @@
 </ul>
 <p>The <em>runtime WebAssembly</em> always starts with the bytes <code>0x0061736D</code>, making it possible to unambiguously differentiate the two situations.</p>
 <blockquote>
-<p><strong>Note</strong>: Implementers should be aware of the danger of so-called &quot;zip bombs&quot; where a zstd-encoded payload decodes to a huge output. Implementers should make sure to cap the size of the output while decoding is in progress.</p>
+<p><strong>Note</strong>: Implementers should be aware of the danger of so-called &quot;zip bombs&quot; where a zstd-encoded payload decodes to a huge output. Implementers should make sure to cap the size of the output while the decoding is in progress.</p>
 </blockquote>
 <h2 id="runtime-webassembly"><a class="header" href="#runtime-webassembly">Runtime WebAssembly</a></h2>
 <p>The <strong>runtime WebAssembly</strong> is defined as a <a href="https://webassembly.github.io/spec/">WebAssembly</a> program in binary format, with the following additional constraints:</p>

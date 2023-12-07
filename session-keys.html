@@ -184,6 +184,11 @@
 <p>TODO finish</p>
 <h2 id="authority-discovery"><a class="header" href="#authority-discovery">Authority discovery</a></h2>
 <p>In order to handle a key of type <code>audi</code>, an implementation must:</p>
+<ul>
+<li>Maintain a tree of blocks.</li>
+<li>Try as hard as possible to gather blocks from the other peers.</li>
+<li>If and only if the key is present in the <em>authority-discovery validators set</em> of the best block of the tree, publish a valid <em>authority-discovery record</em>.</li>
+</ul>
 <p>TODO</p>
 
                     </main>

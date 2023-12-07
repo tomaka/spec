@@ -148,7 +148,7 @@
 <p>A <strong>trie</strong> is defined as:</p>
 <ul>
 <li>A <em>hash algorithm</em></li>
-<li>A (potentially empty) tree of nodes.</li>
+<li>A possibly empty tree of nodes.</li>
 </ul>
 <p>Each <strong>node</strong> is defined as:</p>
 <ul>
@@ -240,7 +240,7 @@ TODO: convert to nibbles</li>
 </ul>
 <p>The <em>runtime WebAssembly</em> always starts with the bytes <code>0x0061736D</code>, making it possible to unambiguously differentiate the two situations.</p>
 <blockquote>
-<p><strong>Note</strong>: Implementers should be aware of the danger of so-called &quot;zip bombs&quot; where a zstd-encoded payload decodes to a huge output. Implementers should make sure to cap the size of the output while decoding is in progress.</p>
+<p><strong>Note</strong>: Implementers should be aware of the danger of so-called &quot;zip bombs&quot; where a zstd-encoded payload decodes to a huge output. Implementers should make sure to cap the size of the output while the decoding is in progress.</p>
 </blockquote>
 <h2 id="runtime-webassembly"><a class="header" href="#runtime-webassembly">Runtime WebAssembly</a></h2>
 <p>The <strong>runtime WebAssembly</strong> is defined as a <a href="https://webassembly.github.io/spec/">WebAssembly</a> program in binary format, with the following additional constraints:</p>
@@ -1199,6 +1199,40 @@ message Identify {
 <p>TODO finish</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="kademlia-1"><a class="header" href="#kademlia-1">Kademlia</a></h1>
 <h2 id="authority-discovery"><a class="header" href="#authority-discovery">Authority discovery</a></h2>
+<p>The <strong>authority-discovery validators set</strong> of a <em>block header</em> is defined as the output of the runtime call to <code>AuthorityDiscoveryApi_authorities</code>.</p>
+<p>TODO: define the format</p>
+<p>An <strong>authority-discovery record</strong> is defined as the encoding of the <code>SignedAuthorityRecord</code> message in the following protobuf definition file:</p>
+<pre><code class="language-protobuf">syntax = &quot;proto3&quot;;
+
+package authority_discovery_v2;
+
+message AuthorityRecord {
+	repeated bytes addresses = 1;
+}
+
+message PeerSignature {
+	bytes signature = 1;
+	bytes public_key = 2;
+}
+
+message SignedAuthorityRecord {
+	bytes record = 1;
+	bytes auth_signature = 2;
+	PeerSignature peer_signature = 3;
+}
+</code></pre>
+<p>Where:</p>
+<ul>
+<li>The <code>record</code> field of <code>SignedAuthorityRecord</code> is the encoding of the <code>AuthorityRecord</code> protobuf message.</li>
+<li>Each element of the <code>addresses</code> field must end with <code>/p2p/...</code>. TODO define better</li>
+<li>The <code>public_key</code> field of the <code>peer_signature</code> is a libp2p public key. TODO define</li>
+<li>All the <code>PeerIds</code> at the end of <code>addresses</code>, and the one of <code>peer_signature</code> must all be identical.</li>
+</ul>
+<p>An <em>authority-discovery record</em> is valid if:</p>
+<ul>
+<li>The <code>auth_signature</code> is a valid cryptographic signature of the payload <code>record</code> with the public key of the authorit-discovery authority. TODO unclear</li>
+<li>The <code>signature</code> in <code>PeerSignature</code> is a valid cryptographic signature of the payload <code>record</code> with the <code>PeerId</code>.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="session-keys"><a class="header" href="#session-keys">Session keys</a></h1>
 <p>TODO: https://github.com/paritytech/polkadot-sdk/blob/408af9b32d95acbbac5e18bee66fd1b74230a699/substrate/primitives/core/src/crypto.rs#L1145</p>
 <p>When the <code>ext_crypto_ed25519_generate_version_1</code>, <code>ext_crypto_sr25519_generate_version_1</code>, or <code>ext_crypto_ecdsa_generate_version_1</code> host functions are called by the runtime during a runtime call, the implementation must persist the private key. In other words, the private key should be stored on disk.</p>
@@ -1241,6 +1275,11 @@ message Identify {
 <p>TODO finish</p>
 <h2 id="authority-discovery-1"><a class="header" href="#authority-discovery-1">Authority discovery</a></h2>
 <p>In order to handle a key of type <code>audi</code>, an implementation must:</p>
+<ul>
+<li>Maintain a tree of blocks.</li>
+<li>Try as hard as possible to gather blocks from the other peers.</li>
+<li>If and only if the key is present in the <em>authority-discovery validators set</em> of the best block of the tree, publish a valid <em>authority-discovery record</em>.</li>
+</ul>
 <p>TODO</p>
 
                     </main>
