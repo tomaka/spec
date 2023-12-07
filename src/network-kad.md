@@ -38,7 +38,7 @@ Where:
 
 | Field name         | Type      | Size (bytes)   |
 | ------------------ | --------- | -------------- |
-| (constant) | Bytes 0x08011220 | 4 |
+| (constant) | 0x08011220 | 4 |
 | [Ed25519](https://www.rfc-editor.org/rfc/rfc8032.txt) Public key | Bytes | 32 |
 
 - The *public key* of the *PeerId*s at the end of `addresses`, and the *public key* of `peer_signature` must all be identical.
